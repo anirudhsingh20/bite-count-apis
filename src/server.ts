@@ -7,6 +7,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
 import userRoutes from './routes/user';
 import authRoutes from './routes/auth';
+import mealRoutes from './routes/meal';
 import healthRoutes from './routes/health';
 import Database from './config/database';
 
@@ -26,6 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/v1/health', healthRoutes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/meals', mealRoutes);
 app.use('/api/v1/users', userRoutes);
 
 // Error handling middleware

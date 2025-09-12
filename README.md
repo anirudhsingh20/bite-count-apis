@@ -34,6 +34,9 @@ A Node.js Express API server built with TypeScript for user management.
 - `POST /api/v1/auth/reset-password` - Reset password with token
 - `POST /api/v1/auth/change-password` - Change password (authenticated users)
 
+### Meal Types
+- `GET /api/v1/meals/types` - Get available meal types (breakfast, lunch, dinner, snack)
+
 ### User Management
 - `GET /api/v1/users` - Get all users (admin only)
 - `GET /api/v1/users/:id` - Get user by ID (authenticated)
