@@ -3,8 +3,12 @@ export interface Meal {
   name: string;
   protein: number;
   calories: number;
-  fat: number;
-  carbs: number;
+  fat?: number;
+  carbs?: number;
+  servingSize: string;
+  tags: string[]; // Array of Tag IDs
+  emoji?: string;
+  user?: string; // Optional User ID
   createdAt: Date;
   updatedAt: Date;
 }
@@ -13,8 +17,12 @@ export interface CreateMealRequest {
   name: string;
   protein: number;
   calories: number;
-  fat: number;
-  carbs: number;
+  fat?: number;
+  carbs?: number;
+  servingSize: string;
+  tags?: string[];
+  emoji?: string;
+  user?: string;
 }
 
 export interface UpdateMealRequest {
@@ -23,6 +31,9 @@ export interface UpdateMealRequest {
   calories?: number;
   fat?: number;
   carbs?: number;
+  servingSize?: string;
+  tags?: string[];
+  emoji?: string;
 }
 
 export interface MealResponse {
@@ -30,8 +41,11 @@ export interface MealResponse {
   name: string;
   protein: number;
   calories: number;
-  fat: number;
-  carbs: number;
+  fat?: number;
+  carbs?: number;
+  servingSize: string;
+  tags: string[];
+  emoji?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,6 +60,7 @@ export interface MealSearchParams {
   maxFat?: number;
   minCarbs?: number;
   maxCarbs?: number;
+  tags?: string[];
   page?: number;
   limit?: number;
 }

@@ -7,6 +7,7 @@ export class MealService {
     
     const [data, total] = await Promise.all([
       Meal.find()
+        .populate('tags', 'name category color')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -24,7 +25,9 @@ export class MealService {
 
   public async getMealById(id: string): Promise<IMeal | null> {
     try {
-      const meal = await Meal.findById(id).lean();
+      const meal = await Meal.findById(id)
+        .populate('tags', 'name category color')
+        .lean();
       return meal;
     } catch (error) {
       throw new Error('Invalid meal ID format');
@@ -33,14 +36,29 @@ export class MealService {
 
   public async createMeal(data: CreateMealRequest): Promise<IMeal> {
     try {
-      const newMeal = new Meal({
+      const mealData: any = {
         name: data.name.trim(),
         protein: data.protein,
         calories: data.calories,
-        fat: data.fat,
-        carbs: data.carbs
-      });
-      
+        servingSize: data.servingSize.trim(),
+        tags: data.tags || [],
+        emoji: data.emoji?.trim()
+      };
+
+      // Only include user if provided
+      if (data.user) {
+        mealData.user = data.user;
+      }
+
+      // Only include fat and carbs if they are provided
+      if (data.fat !== undefined) {
+        mealData.fat = data.fat;
+      }
+      if (data.carbs !== undefined) {
+        mealData.carbs = data.carbs;
+      }
+
+      const newMeal = new Meal(mealData);
       const savedMeal = await newMeal.save();
       return savedMeal.toObject();
     } catch (error) {
@@ -57,12 +75,22 @@ export class MealService {
       if (updateData.name) {
         updateData.name = updateData.name.trim();
       }
+      if (updateData.servingSize) {
+        updateData.servingSize = updateData.servingSize.trim();
+      }
+      if (updateData.emoji) {
+        updateData.emoji = updateData.emoji.trim();
+      }
+      // User field is handled by the schema validation
+      // Tags are already validated by the schema
 
       const updatedMeal = await Meal.findByIdAndUpdate(
         id,
         updateData,
         { new: true, runValidators: true }
-      ).lean();
+      )
+      .populate('tags', 'name category color')
+      .lean();
       
       return updatedMeal;
     } catch (error) {
@@ -93,6 +121,7 @@ export class MealService {
       maxFat, 
       minCarbs, 
       maxCarbs, 
+      tags,
       page = 1, 
       limit = 10 
     } = params;
@@ -133,8 +162,14 @@ export class MealService {
       if (maxCarbs !== undefined) searchQuery.carbs.$lte = maxCarbs;
     }
 
+    // Tags filter
+    if (tags && tags.length > 0) {
+      searchQuery.tags = { $in: tags };
+    }
+
     const [data, total] = await Promise.all([
       Meal.find(searchQuery)
+        .populate('tags', 'name category color')
         .sort({ name: 1 })
         .skip(skip)
         .limit(limit)
@@ -263,6 +298,79 @@ export class MealService {
         throw new Error(`Failed to get meal info: ${error.message}`);
       }
       throw new Error('Failed to get meal info');
+    }
+  }
+
+  public async getMealsByTags(tags: string[], page: number = 1, limit: number = 10): Promise<{ data: IMeal[], total: number, page: number, pages: number }> {
+    const skip = (page - 1) * limit;
+    
+    const [data, total] = await Promise.all([
+      Meal.findByTags(tags, page, limit)
+        .then(results => results.map(result => result.toObject())),
+      Meal.countDocuments({ tags: { $in: tags } })
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      pages: Math.ceil(total / limit)
+    };
+  }
+
+  public async getAllTags(): Promise<any[]> {
+    try {
+      // Import Tag model dynamically to avoid circular dependency
+      const Tag = (await import('../models/TagSchema')).default;
+      const tags = await Tag.find({ isActive: true })
+        .select('name category color')
+        .sort({ name: 1 })
+        .lean();
+      return tags;
+    } catch (error) {
+      throw new Error('Failed to get all tags');
+    }
+  }
+
+  public async getTagsByCategory(category: string): Promise<any[]> {
+    try {
+      // Import Tag model dynamically to avoid circular dependency
+      const Tag = (await import('../models/TagSchema')).default;
+      const tags = await Tag.find({ 
+        category: { $regex: category, $options: 'i' },
+        isActive: true 
+      })
+        .select('name category color')
+        .sort({ name: 1 })
+        .lean();
+      return tags;
+    } catch (error) {
+      throw new Error('Failed to get tags by category');
+    }
+  }
+
+  public async getMealsByUser(userId: string, page: number = 1, limit: number = 10): Promise<{ data: IMeal[], total: number, page: number, pages: number }> {
+    try {
+      const skip = (page - 1) * limit;
+
+      const [data, total] = await Promise.all([
+        Meal.find({ user: userId })
+          .populate('tags', 'name category color')
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        Meal.countDocuments({ user: userId })
+      ]);
+
+      return {
+        data,
+        total,
+        page,
+        pages: Math.ceil(total / limit)
+      };
+    } catch (error) {
+      throw new Error('Failed to get meals by user');
     }
   }
 }

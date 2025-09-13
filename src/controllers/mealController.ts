@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { MealService } from '../services/mealService';
+import { CreateMealRequest, UpdateMealRequest } from '../models/Meal';
 
 class AppError extends Error {
   public statusCode: number;
@@ -70,26 +71,56 @@ export class MealController {
   // POST /api/v1/meals
   public createMeal = async (req: Request, res: Response): Promise<void> => {
     try {
-      const mealData = req.body;
+      const mealData: CreateMealRequest = req.body;
       
       // Basic validation
-      if (!mealData.name || mealData.protein === undefined || mealData.calories === undefined || 
-          mealData.fat === undefined || mealData.carbs === undefined) {
+      if (!mealData.name || mealData.protein === undefined || mealData.calories === undefined || !mealData.servingSize) {
         res.status(400).json({
           success: false,
-          message: 'Name, protein, calories, fat, and carbs are required'
+          message: 'Name, protein, calories, and serving size are required'
         });
         return;
       }
 
       // Validate numeric values
-      if (mealData.protein < 0 || mealData.calories < 0 || mealData.fat < 0 || mealData.carbs < 0) {
+      if (mealData.protein < 0 || mealData.calories < 0) {
         res.status(400).json({
           success: false,
-          message: 'Nutritional values cannot be negative'
+          message: 'Protein and calories cannot be negative'
         });
         return;
       }
+
+      // Validate optional fat and carbs if provided
+      if (mealData.fat !== undefined && mealData.fat < 0) {
+        res.status(400).json({
+          success: false,
+          message: 'Fat cannot be negative'
+        });
+        return;
+      }
+
+      if (mealData.carbs !== undefined && mealData.carbs < 0) {
+        res.status(400).json({
+          success: false,
+          message: 'Carbs cannot be negative'
+        });
+        return;
+      }
+
+      // Validate emoji if provided
+      if (mealData.emoji) {
+        const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
+        if (!emojiRegex.test(mealData.emoji)) {
+          res.status(400).json({
+            success: false,
+            message: 'Emoji must be a valid emoji character'
+          });
+          return;
+        }
+      }
+
+      // Tags are validated by the schema (must be valid ObjectIds)
 
       const newMeal = await this.mealService.createMeal(mealData);
       
@@ -116,7 +147,7 @@ export class MealController {
   public updateMeal = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
-      const updateData = req.body;
+      const updateData: UpdateMealRequest = req.body;
       
       // Validate numeric values if provided
       if (updateData.protein !== undefined && updateData.protein < 0) {
@@ -147,6 +178,20 @@ export class MealController {
         });
         return;
       }
+
+      // Validate emoji if provided
+      if (updateData.emoji) {
+        const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
+        if (!emojiRegex.test(updateData.emoji)) {
+          res.status(400).json({
+            success: false,
+            message: 'Emoji must be a valid emoji character'
+          });
+          return;
+        }
+      }
+
+      // Tags are validated by the schema (must be valid ObjectIds)
       
       const updatedMeal = await this.mealService.updateMeal(id, updateData);
       
@@ -213,6 +258,7 @@ export class MealController {
         maxFat, 
         minCarbs, 
         maxCarbs, 
+        tags,
         page, 
         limit 
       } = req.query;
@@ -227,6 +273,7 @@ export class MealController {
         maxFat: maxFat ? parseInt(maxFat as string) : undefined,
         minCarbs: minCarbs ? parseInt(minCarbs as string) : undefined,
         maxCarbs: maxCarbs ? parseInt(maxCarbs as string) : undefined,
+        tags: tags ? (Array.isArray(tags) ? tags.map(t => String(t)) : [String(tags)]) : undefined,
         page: parseInt(page as string) || 1,
         limit: parseInt(limit as string) || 10
       });
@@ -419,6 +466,78 @@ export class MealController {
         return;
       }
       throw new AppError('Failed to fetch meal info');
+    }
+  };
+
+  // GET /api/v1/meals/tags
+  public getAllTags = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const tags = await this.mealService.getAllTags();
+
+      res.status(200).json({
+        success: true,
+        data: tags
+      });
+    } catch (error) {
+      throw new AppError('Failed to fetch tags');
+    }
+  };
+
+  // GET /api/v1/meals/tags/:tags
+  public getMealsByTags = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { tags } = req.params;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      
+      // Split tags by comma and trim whitespace
+      const tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+      
+      if (tagArray.length === 0) {
+        res.status(400).json({
+          success: false,
+          message: 'At least one tag is required'
+        });
+        return;
+      }
+
+      const result = await this.mealService.getMealsByTags(tagArray, page, limit);
+
+      res.status(200).json({
+        success: true,
+        data: result.data,
+        pagination: {
+          page: result.page,
+          pages: result.pages,
+          total: result.total,
+          limit
+        }
+      });
+    } catch (error) {
+      throw new AppError('Failed to fetch meals by tags');
+    }
+  };
+
+  public getMealsByUser = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { userId } = req.params;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const result = await this.mealService.getMealsByUser(userId, page, limit);
+
+      res.status(200).json({
+        success: true,
+        data: result.data,
+        pagination: {
+          page: result.page,
+          pages: result.pages,
+          total: result.total,
+          limit
+        }
+      });
+    } catch (error) {
+      throw new AppError('Failed to get meals by user');
     }
   };
 }

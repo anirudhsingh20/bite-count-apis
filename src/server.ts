@@ -8,9 +8,9 @@ import { notFound } from './middleware/notFound';
 import userRoutes from './routes/user';
 import authRoutes from './routes/auth';
 import mealRoutes from './routes/meal';
+import tagRoutes from './routes/tag';
 import healthRoutes from './routes/health';
 import Database from './config/database';
-import mealTypeRoutes from './routes/mealType';
 
 // Load environment variables
 dotenv.config();
@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1/health', healthRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/meals', mealRoutes);
-app.use('/api/v1/meal-types', mealTypeRoutes);
+app.use('/api/v1/tags', tagRoutes);
 app.use('/api/v1/users', userRoutes);
 
 // Error handling middleware

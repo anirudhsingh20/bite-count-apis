@@ -5,8 +5,12 @@ export interface IMeal extends Document {
   name: string;
   protein: number;
   calories: number;
-  fat: number;
-  carbs: number;
+  fat?: number;
+  carbs?: number;
+  servingSize: string;
+  tags: mongoose.Types.ObjectId[];
+  emoji?: string;
+  user?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,15 +39,65 @@ const mealSchema = new Schema<IMeal>({
   },
   fat: {
     type: Number,
-    required: [true, 'Fat content is required'],
+    required: false,
     min: [0, 'Fat content cannot be negative'],
-    max: [1000, 'Fat content cannot exceed 1000g']
+    max: [1000, 'Fat content cannot exceed 1000g'],
+    default: undefined
   },
   carbs: {
     type: Number,
-    required: [true, 'Carbohydrate content is required'],
+    required: false,
     min: [0, 'Carbohydrate content cannot be negative'],
-    max: [1000, 'Carbohydrate content cannot exceed 1000g']
+    max: [1000, 'Carbohydrate content cannot exceed 1000g'],
+    default: undefined
+  },
+  servingSize: {
+    type: String,
+    required: [true, 'Serving size is required'],
+    trim: true,
+    minlength: [1, 'Serving size must be at least 1 character long'],
+    maxlength: [50, 'Serving size cannot exceed 50 characters'],
+    index: true
+  },
+  tags: {
+    type: [Schema.Types.ObjectId],
+    ref: 'Tag',
+    required: false,
+    default: [],
+    validate: {
+      validator: function(tags: any[]) {
+        // Each tag should be a valid ObjectId
+        return tags.every((tag: any) => mongoose.Types.ObjectId.isValid(tag));
+      },
+      message: 'All tags must be valid Tag IDs'
+    }
+  },
+  emoji: {
+    type: String,
+    required: false,
+    trim: true,
+    maxlength: [10, 'Emoji cannot exceed 10 characters'],
+    validate: {
+      validator: function(emoji: string) {
+        if (!emoji) return true; // Optional field
+        // Basic emoji validation - check if it contains emoji characters
+        const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
+        return emojiRegex.test(emoji);
+      },
+      message: 'Must be a valid emoji character'
+    }
+  },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: false,
+    validate: {
+      validator: function(userId: any) {
+        if (!userId) return true; // Optional field
+        return mongoose.Types.ObjectId.isValid(userId);
+      },
+      message: 'User must be a valid User ID'
+    }
   }
 }, {
   timestamps: true, // Automatically adds createdAt and updatedAt
@@ -56,6 +110,9 @@ mealSchema.index({ calories: 1 }); // Index for calorie range queries
 mealSchema.index({ protein: 1 }); // Index for protein range queries
 mealSchema.index({ fat: 1 }); // Index for fat range queries
 mealSchema.index({ carbs: 1 }); // Index for carbs range queries
+mealSchema.index({ servingSize: 1 }); // Index for serving size searches
+mealSchema.index({ tags: 1 }); // Index for tag searches
+mealSchema.index({ user: 1 }); // Index for user searches
 mealSchema.index({ name: 'text' }); // Text index for full-text search
 
 // Ensure virtual fields are serialized
@@ -71,13 +128,22 @@ mealSchema.set('toJSON', {
 mealSchema.pre('save', async function(next) {
   try {
     // Normalize name (trim and title case)
-    this.name = this.name.trim();
+    (this as any).name = (this as any).name.trim();
     
     // Round numeric values to 2 decimal places
-    this.protein = Math.round(this.protein * 100) / 100;
-    this.calories = Math.round(this.calories * 100) / 100;
-    this.fat = Math.round(this.fat * 100) / 100;
-    this.carbs = Math.round(this.carbs * 100) / 100;
+    (this as any).protein = Math.round((this as any).protein * 100) / 100;
+    (this as any).calories = Math.round((this as any).calories * 100) / 100;
+    if ((this as any).fat !== undefined) {
+      (this as any).fat = Math.round((this as any).fat * 100) / 100;
+    }
+    if ((this as any).carbs !== undefined) {
+      (this as any).carbs = Math.round((this as any).carbs * 100) / 100;
+    }
+
+    // Validate tag IDs
+    if ((this as any).tags && Array.isArray((this as any).tags)) {
+      (this as any).tags = (this as any).tags.filter((tag: any) => mongoose.Types.ObjectId.isValid(tag));
+    }
     
     next();
   } catch (error) {
@@ -93,6 +159,8 @@ interface IMealModel extends mongoose.Model<IMeal> {
   findByProteinRange(minProtein: number, maxProtein: number, page?: number, limit?: number): Promise<IMeal[]>;
   findByFatRange(minFat: number, maxFat: number, page?: number, limit?: number): Promise<IMeal[]>;
   findByCarbsRange(minCarbs: number, maxCarbs: number, page?: number, limit?: number): Promise<IMeal[]>;
+  findByTags(tags: string[], page?: number, limit?: number): Promise<IMeal[]>;
+  getAllTags(): Promise<string[]>;
   getMealStats(): Promise<any>;
 }
 
@@ -156,6 +224,23 @@ mealSchema.statics.findByCarbsRange = function(minCarbs: number, maxCarbs: numbe
   .limit(limit);
 };
 
+// Static method to find meals by tags
+mealSchema.statics.findByTags = function(tags: string[], page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
+  return this.find({ 
+    tags: { $in: tags } 
+  })
+  .populate('tags', 'name category color')
+  .sort({ name: 1 })
+  .skip(skip)
+  .limit(limit);
+};
+
+// Static method to get all unique tags
+mealSchema.statics.getAllTags = function() {
+  return this.distinct('tags');
+};
+
 // Static method to get meal statistics
 mealSchema.statics.getMealStats = function() {
   return this.aggregate([
@@ -178,16 +263,32 @@ mealSchema.statics.getMealStats = function() {
 
 // Instance method to get meal's basic info
 mealSchema.methods.getMealInfo = function() {
-  return {
+  const info: any = {
     id: this._id,
     name: this.name,
     protein: this.protein,
     calories: this.calories,
-    fat: this.fat,
-    carbs: this.carbs,
+    servingSize: this.servingSize,
+    tags: this.tags || [],
     createdAt: this.createdAt,
     updatedAt: this.updatedAt
   };
+  
+  // Only include fat and carbs if they are defined
+  if (this.fat !== undefined) {
+    info.fat = this.fat;
+  }
+  if (this.carbs !== undefined) {
+    info.carbs = this.carbs;
+  }
+  if (this.emoji !== undefined) {
+    info.emoji = this.emoji;
+  }
+  if (this.user !== undefined) {
+    info.user = this.user;
+  }
+  
+  return info;
 };
 
 // Create and export the model
