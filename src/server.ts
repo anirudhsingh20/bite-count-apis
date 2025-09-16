@@ -9,6 +9,7 @@ import userRoutes from './routes/user';
 import authRoutes from './routes/auth';
 import mealRoutes from './routes/meal';
 import tagRoutes from './routes/tag';
+import foodLogRoutes from './routes/foodLog';
 import healthRoutes from './routes/health';
 import Database from './config/database';
 
@@ -30,6 +31,7 @@ app.use('/api/v1/health', healthRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/meals', mealRoutes);
 app.use('/api/v1/tags', tagRoutes);
+app.use('/api/v1/food-logs', foodLogRoutes);
 app.use('/api/v1/users', userRoutes);
 
 // Error handling middleware
@@ -48,7 +50,7 @@ const startServer = async () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 Health check: http://localhost:${PORT}/api/v1/health`);
-      console.log(`🗄️ Database: ${process.env.MONGODB_URI || 'mongodb://localhost:27017/bite-count-api'}`);
+      // console.log(`🗄️ Database: ${process.env.MONGODB_URI || 'mongodb://localhost:27017/bite-count-api'}`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
