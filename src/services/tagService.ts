@@ -1,24 +1,27 @@
 import Tag, { ITag } from '../models/TagSchema';
-import { CreateTagRequest, UpdateTagRequest, TagSearchParams } from '../models/Tag';
+import {
+  CreateTagRequest,
+  UpdateTagRequest,
+  TagSearchParams,
+} from '../models/Tag';
 
 export class TagService {
-  public async getAllTags(page: number = 1, limit: number = 10): Promise<{ data: ITag[], total: number, page: number, pages: number }> {
+  public async getAllTags(
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: ITag[]; total: number; page: number; pages: number }> {
     const skip = (page - 1) * limit;
-    
+
     const [data, total] = await Promise.all([
-      Tag.find()
-        .sort({ name: 1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      Tag.countDocuments()
+      Tag.find().sort({ name: 1 }).skip(skip).limit(limit).lean(),
+      Tag.countDocuments(),
     ]);
 
     return {
       data,
       total,
       page,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     };
   }
 
@@ -38,9 +41,9 @@ export class TagService {
         description: data.description?.trim(),
         category: data.category?.trim(),
         color: data.color || '#6B7280',
-        isActive: data.isActive !== undefined ? data.isActive : true
+        isActive: data.isActive !== undefined ? data.isActive : true,
       });
-      
+
       const savedTag = await newTag.save();
       return savedTag.toObject();
     } catch (error) {
@@ -54,7 +57,10 @@ export class TagService {
     }
   }
 
-  public async updateTag(id: string, data: UpdateTagRequest): Promise<ITag | null> {
+  public async updateTag(
+    id: string,
+    data: UpdateTagRequest
+  ): Promise<ITag | null> {
     try {
       const updateData: any = { ...data };
       if (updateData.name) {
@@ -67,12 +73,11 @@ export class TagService {
         updateData.category = updateData.category.trim();
       }
 
-      const updatedTag = await Tag.findByIdAndUpdate(
-        id,
-        updateData,
-        { new: true, runValidators: true }
-      ).lean();
-      
+      const updatedTag = await Tag.findByIdAndUpdate(id, updateData, {
+        new: true,
+        runValidators: true,
+      }).lean();
+
       return updatedTag;
     } catch (error) {
       if (error instanceof Error) {
@@ -94,18 +99,14 @@ export class TagService {
     }
   }
 
-  public async searchTags(params: TagSearchParams): Promise<{ data: ITag[], total: number, page: number, pages: number }> {
-    const { 
-      query = '', 
-      category,
-      isActive,
-      page = 1, 
-      limit = 10 
-    } = params;
+  public async searchTags(
+    params: TagSearchParams
+  ): Promise<{ data: ITag[]; total: number; page: number; pages: number }> {
+    const { query = '', category, isActive, page = 1, limit = 10 } = params;
     const skip = (page - 1) * limit;
-    
+
     let searchQuery: any = {};
-    
+
     // Text search by name
     if (query) {
       searchQuery.name = { $regex: query, $options: 'i' };
@@ -122,19 +123,15 @@ export class TagService {
     }
 
     const [data, total] = await Promise.all([
-      Tag.find(searchQuery)
-        .sort({ name: 1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      Tag.countDocuments(searchQuery)
+      Tag.find(searchQuery).sort({ name: 1 }).skip(skip).limit(limit).lean(),
+      Tag.countDocuments(searchQuery),
     ]);
 
     return {
       data,
       total,
       page,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     };
   }
 
@@ -145,18 +142,18 @@ export class TagService {
         {
           $group: {
             _id: '$category',
-            count: { $sum: 1 }
-          }
+            count: { $sum: 1 },
+          },
         },
         {
-          $sort: { count: -1 }
-        }
+          $sort: { count: -1 },
+        },
       ]);
 
       const baseStats = stats[0] || {
         totalTags: 0,
         activeTags: 0,
-        inactiveTags: 0
+        inactiveTags: 0,
       };
 
       const tagsByCategory: { [category: string]: number } = {};
@@ -167,7 +164,7 @@ export class TagService {
 
       return {
         ...baseStats,
-        tagsByCategory
+        tagsByCategory,
       };
     } catch (error) {
       throw new Error('Failed to get tag statistics');
@@ -176,9 +173,7 @@ export class TagService {
 
   public async getActiveTags(): Promise<ITag[]> {
     try {
-      const tags = await Tag.find({ isActive: true })
-        .sort({ name: 1 })
-        .lean();
+      const tags = await Tag.find({ isActive: true }).sort({ name: 1 }).lean();
       return tags;
     } catch (error) {
       throw new Error('Failed to get active tags');
@@ -187,9 +182,9 @@ export class TagService {
 
   public async getTagsByCategory(category: string): Promise<ITag[]> {
     try {
-      const tags = await Tag.find({ 
+      const tags = await Tag.find({
         category: { $regex: category, $options: 'i' },
-        isActive: true 
+        isActive: true,
       })
         .sort({ name: 1 })
         .lean();

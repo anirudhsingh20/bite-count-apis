@@ -1,10 +1,17 @@
 import Meal, { IMeal } from '../models/MealSchema';
-import { CreateMealRequest, UpdateMealRequest, MealSearchParams } from '../models/Meal';
+import {
+  CreateMealRequest,
+  UpdateMealRequest,
+  MealSearchParams,
+} from '../models/Meal';
 
 export class MealService {
-  public async getAllMeals(page: number = 1, limit: number = 10): Promise<{ data: IMeal[], total: number, page: number, pages: number }> {
+  public async getAllMeals(
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: IMeal[]; total: number; page: number; pages: number }> {
     const skip = (page - 1) * limit;
-    
+
     const [data, total] = await Promise.all([
       Meal.find()
         .populate('tags', 'name category color')
@@ -12,14 +19,14 @@ export class MealService {
         .skip(skip)
         .limit(limit)
         .lean(),
-      Meal.countDocuments()
+      Meal.countDocuments(),
     ]);
 
     return {
       data,
       total,
       page,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     };
   }
 
@@ -42,7 +49,7 @@ export class MealService {
         calories: data.calories,
         servingSize: data.servingSize.trim(),
         tags: data.tags || [],
-        emoji: data.emoji?.trim()
+        emoji: data.emoji?.trim(),
       };
 
       // Only include user if provided
@@ -69,7 +76,10 @@ export class MealService {
     }
   }
 
-  public async updateMeal(id: string, data: UpdateMealRequest): Promise<IMeal | null> {
+  public async updateMeal(
+    id: string,
+    data: UpdateMealRequest
+  ): Promise<IMeal | null> {
     try {
       const updateData: any = { ...data };
       if (updateData.name) {
@@ -84,14 +94,13 @@ export class MealService {
       // User field is handled by the schema validation
       // Tags are already validated by the schema
 
-      const updatedMeal = await Meal.findByIdAndUpdate(
-        id,
-        updateData,
-        { new: true, runValidators: true }
-      )
-      .populate('tags', 'name category color')
-      .lean();
-      
+      const updatedMeal = await Meal.findByIdAndUpdate(id, updateData, {
+        new: true,
+        runValidators: true,
+      })
+        .populate('tags', 'name category color')
+        .lean();
+
       return updatedMeal;
     } catch (error) {
       if (error instanceof Error) {
@@ -110,25 +119,27 @@ export class MealService {
     }
   }
 
-  public async searchMeals(params: MealSearchParams): Promise<{ data: IMeal[], total: number, page: number, pages: number }> {
-    const { 
-      query = '', 
-      minCalories, 
-      maxCalories, 
-      minProtein, 
-      maxProtein, 
-      minFat, 
-      maxFat, 
-      minCarbs, 
-      maxCarbs, 
+  public async searchMeals(
+    params: MealSearchParams
+  ): Promise<{ data: IMeal[]; total: number; page: number; pages: number }> {
+    const {
+      query = '',
+      minCalories,
+      maxCalories,
+      minProtein,
+      maxProtein,
+      minFat,
+      maxFat,
+      minCarbs,
+      maxCarbs,
       tags,
-      page = 1, 
-      limit = 10 
+      page = 1,
+      limit = 10,
     } = params;
     const skip = (page - 1) * limit;
-    
+
     let searchQuery: any = {};
-    
+
     // Text search by name
     if (query) {
       searchQuery.name = { $regex: query, $options: 'i' };
@@ -174,113 +185,137 @@ export class MealService {
         .skip(skip)
         .limit(limit)
         .lean(),
-      Meal.countDocuments(searchQuery)
+      Meal.countDocuments(searchQuery),
     ]);
 
     return {
       data,
       total,
       page,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     };
   }
 
   public async getMealStats(): Promise<any> {
     try {
       const stats = await Meal.getMealStats();
-      return stats[0] || {
-        totalMeals: 0,
-        totalCalories: 0,
-        totalProtein: 0,
-        totalFat: 0,
-        totalCarbs: 0,
-        averageCalories: 0,
-        averageProtein: 0,
-        averageFat: 0,
-        averageCarbs: 0
-      };
+      return (
+        stats[0] || {
+          totalMeals: 0,
+          totalCalories: 0,
+          totalProtein: 0,
+          totalFat: 0,
+          totalCarbs: 0,
+          averageCalories: 0,
+          averageProtein: 0,
+          averageFat: 0,
+          averageCarbs: 0,
+        }
+      );
     } catch (error) {
       throw new Error('Failed to get meal statistics');
     }
   }
 
-  public async getMealsByCalorieRange(minCalories: number, maxCalories: number, page: number = 1, limit: number = 10): Promise<{ data: IMeal[], total: number, page: number, pages: number }> {
+  public async getMealsByCalorieRange(
+    minCalories: number,
+    maxCalories: number,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: IMeal[]; total: number; page: number; pages: number }> {
     const skip = (page - 1) * limit;
-    
+
     const [data, total] = await Promise.all([
       Meal.find({ calories: { $gte: minCalories, $lte: maxCalories } })
         .sort({ name: 1 })
         .skip(skip)
         .limit(limit)
         .lean(),
-      Meal.countDocuments({ calories: { $gte: minCalories, $lte: maxCalories } })
-    ]); 
+      Meal.countDocuments({
+        calories: { $gte: minCalories, $lte: maxCalories },
+      }),
+    ]);
 
     return {
       data,
       total,
       page,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     };
   }
 
-  public async getMealsByProteinRange(minProtein: number, maxProtein: number, page: number = 1, limit: number = 10): Promise<{ data: IMeal[], total: number, page: number, pages: number }> {
+  public async getMealsByProteinRange(
+    minProtein: number,
+    maxProtein: number,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: IMeal[]; total: number; page: number; pages: number }> {
     const skip = (page - 1) * limit;
-    
+
     const [data, total] = await Promise.all([
       Meal.find({ protein: { $gte: minProtein, $lte: maxProtein } })
         .sort({ name: 1 })
         .skip(skip)
         .limit(limit)
         .lean(),
-      Meal.countDocuments({ protein: { $gte: minProtein, $lte: maxProtein } })
+      Meal.countDocuments({ protein: { $gte: minProtein, $lte: maxProtein } }),
     ]);
 
     return {
       data,
       total,
       page,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     };
   }
 
-  public async getMealsByFatRange(minFat: number, maxFat: number, page: number = 1, limit: number = 10): Promise<{ data: IMeal[], total: number, page: number, pages: number }> {
+  public async getMealsByFatRange(
+    minFat: number,
+    maxFat: number,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: IMeal[]; total: number; page: number; pages: number }> {
     const skip = (page - 1) * limit;
-    
+
     const [data, total] = await Promise.all([
       Meal.find({ fat: { $gte: minFat, $lte: maxFat } })
         .sort({ name: 1 })
         .skip(skip)
         .limit(limit)
         .lean(),
-      Meal.countDocuments({ fat: { $gte: minFat, $lte: maxFat } })
+      Meal.countDocuments({ fat: { $gte: minFat, $lte: maxFat } }),
     ]);
 
     return {
       data,
       total,
       page,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     };
   }
 
-  public async getMealsByCarbsRange(minCarbs: number, maxCarbs: number, page: number = 1, limit: number = 10): Promise<{ data: IMeal[], total: number, page: number, pages: number }> {
+  public async getMealsByCarbsRange(
+    minCarbs: number,
+    maxCarbs: number,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: IMeal[]; total: number; page: number; pages: number }> {
     const skip = (page - 1) * limit;
-    
+
     const [data, total] = await Promise.all([
       Meal.find({ carbs: { $gte: minCarbs, $lte: maxCarbs } })
         .sort({ name: 1 })
         .skip(skip)
         .limit(limit)
         .lean(),
-      Meal.countDocuments({ carbs: { $gte: minCarbs, $lte: maxCarbs } })
+      Meal.countDocuments({ carbs: { $gte: minCarbs, $lte: maxCarbs } }),
     ]);
 
     return {
       data,
       total,
       page,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     };
   }
 
@@ -301,20 +336,25 @@ export class MealService {
     }
   }
 
-  public async getMealsByTags(tags: string[], page: number = 1, limit: number = 10): Promise<{ data: IMeal[], total: number, page: number, pages: number }> {
+  public async getMealsByTags(
+    tags: string[],
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: IMeal[]; total: number; page: number; pages: number }> {
     const skip = (page - 1) * limit;
-    
+
     const [data, total] = await Promise.all([
-      Meal.findByTags(tags, page, limit)
-        .then(results => results.map(result => result.toObject())),
-      Meal.countDocuments({ tags: { $in: tags } })
+      Meal.findByTags(tags, page, limit).then(results =>
+        results.map(result => result.toObject())
+      ),
+      Meal.countDocuments({ tags: { $in: tags } }),
     ]);
 
     return {
       data,
       total,
       page,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     };
   }
 
@@ -336,9 +376,9 @@ export class MealService {
     try {
       // Import Tag model dynamically to avoid circular dependency
       const Tag = (await import('../models/TagSchema')).default;
-      const tags = await Tag.find({ 
+      const tags = await Tag.find({
         category: { $regex: category, $options: 'i' },
-        isActive: true 
+        isActive: true,
       })
         .select('name category color')
         .sort({ name: 1 })
@@ -349,7 +389,11 @@ export class MealService {
     }
   }
 
-  public async getMealsByUser(userId: string, page: number = 1, limit: number = 10): Promise<{ data: IMeal[], total: number, page: number, pages: number }> {
+  public async getMealsByUser(
+    userId: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: IMeal[]; total: number; page: number; pages: number }> {
     try {
       const skip = (page - 1) * limit;
 
@@ -360,14 +404,14 @@ export class MealService {
           .skip(skip)
           .limit(limit)
           .lean(),
-        Meal.countDocuments({ user: userId })
+        Meal.countDocuments({ user: userId }),
       ]);
 
       return {
         data,
         total,
         page,
-        pages: Math.ceil(total / limit)
+        pages: Math.ceil(total / limit),
       };
     } catch (error) {
       throw new Error('Failed to get meals by user');

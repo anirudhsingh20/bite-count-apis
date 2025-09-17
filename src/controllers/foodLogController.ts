@@ -1,5 +1,9 @@
 import { Request, Response } from 'express';
-import { CreateBulkFoodLogRequest, CreateFoodLogRequest, UpdateFoodLogRequest } from '../models/FoodLog';
+import {
+  CreateBulkFoodLogRequest,
+  CreateFoodLogRequest,
+  UpdateFoodLogRequest,
+} from '../models/FoodLog';
 import { FoodLogService } from '../services/foodLogService';
 
 class AppError extends Error {
@@ -10,7 +14,7 @@ class AppError extends Error {
     super(message);
     this.statusCode = statusCode;
     this.isOperational = true;
-    
+
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -26,12 +30,17 @@ export class FoodLogController {
   public createFoodLog = async (req: Request, res: Response): Promise<void> => {
     try {
       const foodLogData: CreateFoodLogRequest = req.body;
-      
+
       // Basic validation
-      if (!foodLogData.user || !foodLogData.meal || !foodLogData.mealType || foodLogData.quantity === undefined) {
+      if (
+        !foodLogData.user ||
+        !foodLogData.meal ||
+        !foodLogData.mealType ||
+        foodLogData.quantity === undefined
+      ) {
         res.status(400).json({
           success: false,
-          message: 'User, meal, meal type, and quantity are required'
+          message: 'User, meal, meal type, and quantity are required',
         });
         return;
       }
@@ -41,7 +50,7 @@ export class FoodLogController {
       if (!validMealTypes.includes(foodLogData.mealType)) {
         res.status(400).json({
           success: false,
-          message: 'Meal type must be one of: breakfast, lunch, dinner, snack'
+          message: 'Meal type must be one of: breakfast, lunch, dinner, snack',
         });
         return;
       }
@@ -50,7 +59,7 @@ export class FoodLogController {
       if (foodLogData.quantity <= 0 || foodLogData.quantity > 100) {
         res.status(400).json({
           success: false,
-          message: 'Quantity must be between 0.1 and 100'
+          message: 'Quantity must be between 0.1 and 100',
         });
         return;
       }
@@ -59,24 +68,24 @@ export class FoodLogController {
       if (foodLogData.notes && foodLogData.notes.length > 500) {
         res.status(400).json({
           success: false,
-          message: 'Notes cannot exceed 500 characters'
+          message: 'Notes cannot exceed 500 characters',
         });
         return;
       }
 
       const newFoodLog = await this.foodLogService.createFoodLog(foodLogData);
-      
+
       res.status(201).json({
         success: true,
         data: newFoodLog,
-        message: 'Food log created successfully'
+        message: 'Food log created successfully',
       });
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('validation failed')) {
           res.status(400).json({
             success: false,
-            message: error.message
+            message: error.message,
           });
           return;
         }
@@ -86,15 +95,18 @@ export class FoodLogController {
   };
 
   // POST /api/v1/food-logs/bulk
-  public createBulkFoodLog = async (req: Request, res: Response): Promise<void> => {
+  public createBulkFoodLog = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const bulkLogData: CreateBulkFoodLogRequest = req.body;
-      
+
       // Basic validation
       if (!bulkLogData.user || !bulkLogData.mealType || !bulkLogData.items) {
         res.status(400).json({
           success: false,
-          message: 'User, meal type, and items are required'
+          message: 'User, meal type, and items are required',
         });
         return;
       }
@@ -104,7 +116,7 @@ export class FoodLogController {
       if (!validMealTypes.includes(bulkLogData.mealType)) {
         res.status(400).json({
           success: false,
-          message: 'Meal type must be one of: breakfast, lunch, dinner, snack'
+          message: 'Meal type must be one of: breakfast, lunch, dinner, snack',
         });
         return;
       }
@@ -113,7 +125,7 @@ export class FoodLogController {
       if (!Array.isArray(bulkLogData.items) || bulkLogData.items.length === 0) {
         res.status(400).json({
           success: false,
-          message: 'Items must be a non-empty array'
+          message: 'Items must be a non-empty array',
         });
         return;
       }
@@ -121,7 +133,7 @@ export class FoodLogController {
       if (bulkLogData.items.length > 20) {
         res.status(400).json({
           success: false,
-          message: 'Cannot log more than 20 items at once'
+          message: 'Cannot log more than 20 items at once',
         });
         return;
       }
@@ -129,11 +141,11 @@ export class FoodLogController {
       // Validate each item
       for (let i = 0; i < bulkLogData.items.length; i++) {
         const item = bulkLogData.items[i];
-        
+
         if (!item.meal || item.quantity === undefined) {
           res.status(400).json({
             success: false,
-            message: `Item ${i + 1}: meal and quantity are required`
+            message: `Item ${i + 1}: meal and quantity are required`,
           });
           return;
         }
@@ -141,7 +153,7 @@ export class FoodLogController {
         if (item.quantity <= 0 || item.quantity > 100) {
           res.status(400).json({
             success: false,
-            message: `Item ${i + 1}: quantity must be between 0.1 and 100`
+            message: `Item ${i + 1}: quantity must be between 0.1 and 100`,
           });
           return;
         }
@@ -149,7 +161,7 @@ export class FoodLogController {
         if (item.notes && item.notes.length > 500) {
           res.status(400).json({
             success: false,
-            message: `Item ${i + 1}: notes cannot exceed 500 characters`
+            message: `Item ${i + 1}: notes cannot exceed 500 characters`,
           });
           return;
         }
@@ -159,20 +171,20 @@ export class FoodLogController {
       if (bulkLogData.notes && bulkLogData.notes.length > 500) {
         res.status(400).json({
           success: false,
-          message: 'General notes cannot exceed 500 characters'
+          message: 'General notes cannot exceed 500 characters',
         });
         return;
       }
 
       const result = await this.foodLogService.createBulkFoodLog(bulkLogData);
-      
+
       res.status(201).json(result);
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('validation failed')) {
           res.status(400).json({
             success: false,
-            message: error.message
+            message: error.message,
           });
           return;
         }
@@ -182,22 +194,25 @@ export class FoodLogController {
   };
 
   // GET /api/v1/food-logs/:id
-  public getFoodLogById = async (req: Request, res: Response): Promise<void> => {
+  public getFoodLogById = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { id } = req.params;
       const foodLog = await this.foodLogService.getFoodLogById(id);
-      
+
       if (!foodLog) {
         res.status(404).json({
           success: false,
-          message: 'Food log not found'
+          message: 'Food log not found',
         });
         return;
       }
 
       res.status(200).json({
         success: true,
-        data: foodLog
+        data: foodLog,
       });
     } catch (error) {
       throw new AppError('Failed to fetch food log');
@@ -209,14 +224,15 @@ export class FoodLogController {
     try {
       const { id } = req.params;
       const updateData: UpdateFoodLogRequest = req.body;
-      
+
       // Validate meal type if provided
       if (updateData.mealType) {
         const validMealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
         if (!validMealTypes.includes(updateData.mealType)) {
           res.status(400).json({
             success: false,
-            message: 'Meal type must be one of: breakfast, lunch, dinner, snack'
+            message:
+              'Meal type must be one of: breakfast, lunch, dinner, snack',
           });
           return;
         }
@@ -227,7 +243,7 @@ export class FoodLogController {
         if (updateData.quantity <= 0 || updateData.quantity > 100) {
           res.status(400).json({
             success: false,
-            message: 'Quantity must be between 0.1 and 100'
+            message: 'Quantity must be between 0.1 and 100',
           });
           return;
         }
@@ -237,17 +253,20 @@ export class FoodLogController {
       if (updateData.notes && updateData.notes.length > 500) {
         res.status(400).json({
           success: false,
-          message: 'Notes cannot exceed 500 characters'
+          message: 'Notes cannot exceed 500 characters',
         });
         return;
       }
 
-      const updatedFoodLog = await this.foodLogService.updateFoodLog(id, updateData);
-      
+      const updatedFoodLog = await this.foodLogService.updateFoodLog(
+        id,
+        updateData
+      );
+
       if (!updatedFoodLog) {
         res.status(404).json({
           success: false,
-          message: 'Food log not found'
+          message: 'Food log not found',
         });
         return;
       }
@@ -255,14 +274,14 @@ export class FoodLogController {
       res.status(200).json({
         success: true,
         data: updatedFoodLog,
-        message: 'Food log updated successfully'
+        message: 'Food log updated successfully',
       });
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('validation failed')) {
           res.status(400).json({
             success: false,
-            message: error.message
+            message: error.message,
           });
           return;
         }
@@ -276,18 +295,18 @@ export class FoodLogController {
     try {
       const { id } = req.params;
       const deleted = await this.foodLogService.deleteFoodLog(id);
-      
+
       if (!deleted) {
         res.status(404).json({
           success: false,
-          message: 'Food log not found'
+          message: 'Food log not found',
         });
         return;
       }
 
       res.status(200).json({
         success: true,
-        message: 'Food log deleted successfully'
+        message: 'Food log deleted successfully',
       });
     } catch (error) {
       throw new AppError('Failed to delete food log');
@@ -295,19 +314,26 @@ export class FoodLogController {
   };
 
   // GET /api/v1/food-logs/user/:userId
-  public getFoodLogsByUser = async (req: Request, res: Response): Promise<void> => {
+  public getFoodLogsByUser = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { userId } = req.params;
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 200;
-      const startDate = req.query.startDate ? parseInt(req.query.startDate as string) : undefined;
-      const endDate = req.query.endDate ? parseInt(req.query.endDate as string) : undefined;
+      const startDate = req.query.startDate
+        ? parseInt(req.query.startDate as string)
+        : undefined;
+      const endDate = req.query.endDate
+        ? parseInt(req.query.endDate as string)
+        : undefined;
 
       // Validate date parameters
       if (req.query.startDate && (isNaN(startDate!) || startDate! < 0)) {
         res.status(400).json({
           success: false,
-          message: 'Invalid start date format. Expected epoch timestamp.'
+          message: 'Invalid start date format. Expected epoch timestamp.',
         });
         return;
       }
@@ -315,7 +341,7 @@ export class FoodLogController {
       if (req.query.endDate && (isNaN(endDate!) || endDate! < 0)) {
         res.status(400).json({
           success: false,
-          message: 'Invalid end date format. Expected epoch timestamp.'
+          message: 'Invalid end date format. Expected epoch timestamp.',
         });
         return;
       }
@@ -323,12 +349,18 @@ export class FoodLogController {
       if (startDate && endDate && startDate > endDate) {
         res.status(400).json({
           success: false,
-          message: 'Start date must be before end date'
+          message: 'Start date must be before end date',
         });
         return;
       }
 
-      const result = await this.foodLogService.getFoodLogsByUser(userId, page, limit, startDate, endDate);
+      const result = await this.foodLogService.getFoodLogsByUser(
+        userId,
+        page,
+        limit,
+        startDate,
+        endDate
+      );
       const response = {
         success: true,
         data: result.data,
@@ -336,46 +368,47 @@ export class FoodLogController {
           page: result.page,
           pages: result.pages,
           total: result.total,
-          limit
-        }
+          limit,
+        },
       };
-      
+
       res.status(200).json(response);
     } catch (error) {
       console.error('Error in getFoodLogsByUser controller:', error);
       if (error instanceof Error) {
         res.status(500).json({
           success: false,
-          message: error.message
+          message: error.message,
         });
         return;
       }
       res.status(500).json({
         success: false,
-        message: 'Failed to fetch user food logs'
+        message: 'Failed to fetch user food logs',
       });
     }
   };
 
   // GET /api/v1/food-logs/search
-  public searchFoodLogs = async (req: Request, res: Response): Promise<void> => {
+  public searchFoodLogs = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
-      const { 
-        userId,
-        mealType,
-        startDate,
-        endDate,
-        page,
-        limit
-      } = req.query;
+      const { userId, mealType, startDate, endDate, page, limit } = req.query;
 
       const searchParams = {
         userId: userId as string,
-        mealType: mealType as 'breakfast' | 'lunch' | 'dinner' | 'snack' | undefined,
+        mealType: mealType as
+          | 'breakfast'
+          | 'lunch'
+          | 'dinner'
+          | 'snack'
+          | undefined,
         startDate: startDate ? parseInt(startDate as string) : undefined,
         endDate: endDate ? parseInt(endDate as string) : undefined,
         page: parseInt(page as string) || 1,
-        limit: parseInt(limit as string) || 10
+        limit: parseInt(limit as string) || 10,
       };
 
       const result = await this.foodLogService.searchFoodLogs(searchParams);
@@ -387,8 +420,8 @@ export class FoodLogController {
           page: result.page,
           pages: result.pages,
           total: result.total,
-          limit: searchParams.limit
-        }
+          limit: searchParams.limit,
+        },
       });
     } catch (error) {
       throw new AppError('Failed to search food logs');
@@ -396,26 +429,32 @@ export class FoodLogController {
   };
 
   // GET /api/v1/food-logs/daily-nutrition/:userId
-  public getDailyNutritionSummary = async (req: Request, res: Response): Promise<void> => {
+  public getDailyNutritionSummary = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { userId } = req.params;
       const { date } = req.query;
 
       const targetDate = date ? parseInt(date as string) : Date.now();
-      
+
       if (isNaN(targetDate) || targetDate < 0) {
         res.status(400).json({
           success: false,
-          message: 'Invalid date format. Expected epoch timestamp.'
+          message: 'Invalid date format. Expected epoch timestamp.',
         });
         return;
       }
 
-      const summary = await this.foodLogService.getDailyNutritionSummary(userId, targetDate);
+      const summary = await this.foodLogService.getDailyNutritionSummary(
+        userId,
+        targetDate
+      );
 
       res.status(200).json({
         success: true,
-        data: summary
+        data: summary,
       });
     } catch (error) {
       throw new AppError('Failed to fetch daily nutrition summary');
@@ -423,7 +462,10 @@ export class FoodLogController {
   };
 
   // GET /api/v1/food-logs/nutrition-range/:userId
-  public getNutritionSummaryRange = async (req: Request, res: Response): Promise<void> => {
+  public getNutritionSummaryRange = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { userId } = req.params;
       const { startDate, endDate } = req.query;
@@ -431,18 +473,18 @@ export class FoodLogController {
       if (!startDate || !endDate) {
         res.status(400).json({
           success: false,
-          message: 'Start date and end date are required'
+          message: 'Start date and end date are required',
         });
         return;
       }
 
       const start = parseInt(startDate as string);
       const end = parseInt(endDate as string);
-      
+
       if (isNaN(start) || isNaN(end) || start < 0 || end < 0) {
         res.status(400).json({
           success: false,
-          message: 'Invalid date format. Expected epoch timestamps.'
+          message: 'Invalid date format. Expected epoch timestamps.',
         });
         return;
       }
@@ -450,16 +492,20 @@ export class FoodLogController {
       if (start > end) {
         res.status(400).json({
           success: false,
-          message: 'Start date must be before end date'
+          message: 'Start date must be before end date',
         });
         return;
       }
 
-      const summaries = await this.foodLogService.getNutritionSummaryRange(userId, start, end);
+      const summaries = await this.foodLogService.getNutritionSummaryRange(
+        userId,
+        start,
+        end
+      );
 
       res.status(200).json({
         success: true,
-        data: summaries
+        data: summaries,
       });
     } catch (error) {
       throw new AppError('Failed to fetch nutrition summary range');
@@ -467,7 +513,10 @@ export class FoodLogController {
   };
 
   // GET /api/v1/food-logs/meal-type/:userId/:mealType
-  public getFoodLogsByMealType = async (req: Request, res: Response): Promise<void> => {
+  public getFoodLogsByMealType = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { userId, mealType } = req.params;
       const page = parseInt(req.query.page as string) || 1;
@@ -477,15 +526,16 @@ export class FoodLogController {
       if (!validMealTypes.includes(mealType)) {
         res.status(400).json({
           success: false,
-          message: 'Invalid meal type. Must be one of: breakfast, lunch, dinner, snack'
+          message:
+            'Invalid meal type. Must be one of: breakfast, lunch, dinner, snack',
         });
         return;
       }
 
       const result = await this.foodLogService.getFoodLogsByMealType(
-        userId, 
-        mealType as 'breakfast' | 'lunch' | 'dinner' | 'snack', 
-        page, 
+        userId,
+        mealType as 'breakfast' | 'lunch' | 'dinner' | 'snack',
+        page,
         limit
       );
 
@@ -496,8 +546,8 @@ export class FoodLogController {
           page: result.page,
           pages: result.pages,
           total: result.total,
-          limit
-        }
+          limit,
+        },
       });
     } catch (error) {
       throw new AppError('Failed to fetch food logs by meal type');
@@ -505,16 +555,22 @@ export class FoodLogController {
   };
 
   // GET /api/v1/food-logs/recent/:userId
-  public getRecentFoodLogs = async (req: Request, res: Response): Promise<void> => {
+  public getRecentFoodLogs = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { userId } = req.params;
       const limit = parseInt(req.query.limit as string) || 5;
 
-      const foodLogs = await this.foodLogService.getRecentFoodLogs(userId, limit);
+      const foodLogs = await this.foodLogService.getRecentFoodLogs(
+        userId,
+        limit
+      );
 
       res.status(200).json({
         success: true,
-        data: foodLogs
+        data: foodLogs,
       });
     } catch (error) {
       throw new AppError('Failed to fetch recent food logs');
@@ -522,14 +578,17 @@ export class FoodLogController {
   };
 
   // GET /api/v1/food-logs/stats/:userId
-  public getFoodLogStats = async (req: Request, res: Response): Promise<void> => {
+  public getFoodLogStats = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { userId } = req.params;
       const stats = await this.foodLogService.getFoodLogStats(userId);
 
       res.status(200).json({
         success: true,
-        data: stats
+        data: stats,
       });
     } catch (error) {
       throw new AppError('Failed to fetch food log statistics');
@@ -537,16 +596,22 @@ export class FoodLogController {
   };
 
   // GET /api/v1/food-logs/weekly-trend/:userId
-  public getWeeklyNutritionTrend = async (req: Request, res: Response): Promise<void> => {
+  public getWeeklyNutritionTrend = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { userId } = req.params;
       const weeks = parseInt(req.query.weeks as string) || 4;
 
-      const trend = await this.foodLogService.getWeeklyNutritionTrend(userId, weeks);
+      const trend = await this.foodLogService.getWeeklyNutritionTrend(
+        userId,
+        weeks
+      );
 
       res.status(200).json({
         success: true,
-        data: trend
+        data: trend,
       });
     } catch (error) {
       throw new AppError('Failed to fetch weekly nutrition trend');
@@ -554,16 +619,22 @@ export class FoodLogController {
   };
 
   // GET /api/v1/food-logs/monthly-trend/:userId
-  public getMonthlyNutritionTrend = async (req: Request, res: Response): Promise<void> => {
+  public getMonthlyNutritionTrend = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { userId } = req.params;
       const months = parseInt(req.query.months as string) || 6;
 
-      const trend = await this.foodLogService.getMonthlyNutritionTrend(userId, months);
+      const trend = await this.foodLogService.getMonthlyNutritionTrend(
+        userId,
+        months
+      );
 
       res.status(200).json({
         success: true,
-        data: trend
+        data: trend,
       });
     } catch (error) {
       throw new AppError('Failed to fetch monthly nutrition trend');
@@ -574,7 +645,7 @@ export class FoodLogController {
   public getMealTypes = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       success: true,
-      data: ['breakfast', 'lunch', 'dinner', 'snack']
+      data: ['breakfast', 'lunch', 'dinner', 'snack'],
     });
   };
 }

@@ -11,11 +11,11 @@ dotenv.config();
 const resetDatabase = async () => {
   try {
     console.log('🔄 Starting database reset...');
-    
+
     // Connect to database
     const db = Database.getInstance();
     await db.connect();
-    
+
     // Clear all data
     const result = await User.deleteMany({});
     console.log(`🗑️ Deleted ${result.deletedCount} user records`);
@@ -30,7 +30,6 @@ const resetDatabase = async () => {
     console.log(`🗑️ Deleted ${tagResult.deletedCount} tag records`);
 
     console.log('✅ Database reset completed successfully!');
-    
   } catch (error) {
     console.error('❌ Error resetting database:', error);
     process.exit(1);

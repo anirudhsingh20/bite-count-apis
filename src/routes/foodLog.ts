@@ -32,20 +32,32 @@ router.get('/recent/:userId', foodLogController.getRecentFoodLogs);
 router.get('/search', foodLogController.searchFoodLogs);
 
 // GET /api/v1/food-logs/meal-type/:userId/:mealType - Get food logs by meal type
-router.get('/meal-type/:userId/:mealType', foodLogController.getFoodLogsByMealType);
+router.get(
+  '/meal-type/:userId/:mealType',
+  foodLogController.getFoodLogsByMealType
+);
 
 // Nutrition tracking and analytics
 // GET /api/v1/food-logs/daily-nutrition/:userId - Get daily nutrition summary
-router.get('/daily-nutrition/:userId', foodLogController.getDailyNutritionSummary);
+router.get(
+  '/daily-nutrition/:userId',
+  foodLogController.getDailyNutritionSummary
+);
 
 // GET /api/v1/food-logs/nutrition-range/:userId - Get nutrition summary for date range
-router.get('/nutrition-range/:userId', foodLogController.getNutritionSummaryRange);
+router.get(
+  '/nutrition-range/:userId',
+  foodLogController.getNutritionSummaryRange
+);
 
 // GET /api/v1/food-logs/weekly-trend/:userId - Get weekly nutrition trend
 router.get('/weekly-trend/:userId', foodLogController.getWeeklyNutritionTrend);
 
 // GET /api/v1/food-logs/monthly-trend/:userId - Get monthly nutrition trend
-router.get('/monthly-trend/:userId', foodLogController.getMonthlyNutritionTrend);
+router.get(
+  '/monthly-trend/:userId',
+  foodLogController.getMonthlyNutritionTrend
+);
 
 // Statistics
 // GET /api/v1/food-logs/stats/:userId - Get food log statistics

@@ -9,7 +9,14 @@
     "build": "tsc",
     "clean": "rm -rf dist",
     "db:seed": "ts-node src/scripts/seedDatabase.ts",
-    "db:reset": "ts-node src/scripts/resetDatabase.ts"
+    "db:reset": "ts-node src/scripts/resetDatabase.ts",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write src/**/*.ts",
+    "format:check": "prettier --check src/**/*.ts",
+    "type-check": "tsc --noEmit",
+    "pre-push": "npm run build && npm run lint && npm run format:check",
+    "prepare": "husky install"
   },
   "keywords": [
     "express",
@@ -39,8 +46,22 @@
     "@types/express": "^4.17.21",
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.10.5",
+    "@typescript-eslint/eslint-plugin": "^8.44.0",
+    "@typescript-eslint/parser": "^8.44.0",
+    "eslint": "^9.35.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
     "nodemon": "^3.0.2",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }

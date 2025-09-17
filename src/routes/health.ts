@@ -9,7 +9,7 @@ router.get('/', (req: Request, res: Response) => {
     message: 'Bite Count API is healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
   });
 });
 

@@ -1,24 +1,27 @@
 import User, { IUser } from '../models/UserSchema';
-import { CreateUserRequest, UpdateUserRequest, UserSearchParams } from '../models/User';
+import {
+  CreateUserRequest,
+  UpdateUserRequest,
+  UserSearchParams,
+} from '../models/User';
 
 export class UserService {
-  public async getAllUsers(page: number = 1, limit: number = 10): Promise<{ data: IUser[], total: number, page: number, pages: number }> {
+  public async getAllUsers(
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ data: IUser[]; total: number; page: number; pages: number }> {
     const skip = (page - 1) * limit;
-    
+
     const [data, total] = await Promise.all([
-      User.find()
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      User.countDocuments()
+      User.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      User.countDocuments(),
     ]);
 
     return {
       data,
       total,
       page,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     };
   }
 
@@ -50,9 +53,9 @@ export class UserService {
 
       const newUser = new User({
         name: data.name.trim(),
-        email: data.email.toLowerCase().trim()
+        email: data.email.toLowerCase().trim(),
       });
-      
+
       const savedUser = await newUser.save();
       return savedUser.toObject();
     } catch (error) {
@@ -63,7 +66,10 @@ export class UserService {
     }
   }
 
-  public async updateUser(id: string, data: UpdateUserRequest): Promise<IUser | null> {
+  public async updateUser(
+    id: string,
+    data: UpdateUserRequest
+  ): Promise<IUser | null> {
     try {
       // If updating email, check if it's already taken by another user
       if (data.email) {
@@ -81,12 +87,11 @@ export class UserService {
         updateData.name = updateData.name.trim();
       }
 
-      const updatedUser = await User.findByIdAndUpdate(
-        id,
-        updateData,
-        { new: true, runValidators: true }
-      ).lean();
-      
+      const updatedUser = await User.findByIdAndUpdate(id, updateData, {
+        new: true,
+        runValidators: true,
+      }).lean();
+
       return updatedUser;
     } catch (error) {
       if (error instanceof Error) {
@@ -105,35 +110,33 @@ export class UserService {
     }
   }
 
-  public async searchUsers(params: UserSearchParams): Promise<{ data: IUser[], total: number, page: number, pages: number }> {
+  public async searchUsers(
+    params: UserSearchParams
+  ): Promise<{ data: IUser[]; total: number; page: number; pages: number }> {
     const { query = '', page = 1, limit = 10 } = params;
     const skip = (page - 1) * limit;
-    
+
     let searchQuery: any = {};
-    
+
     if (query) {
       searchQuery = {
         $or: [
           { name: { $regex: query, $options: 'i' } },
-          { email: { $regex: query, $options: 'i' } }
-        ]
+          { email: { $regex: query, $options: 'i' } },
+        ],
       };
     }
 
     const [data, total] = await Promise.all([
-      User.find(searchQuery)
-        .sort({ name: 1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      User.countDocuments(searchQuery)
+      User.find(searchQuery).sort({ name: 1 }).skip(skip).limit(limit).lean(),
+      User.countDocuments(searchQuery),
     ]);
 
     return {
       data,
       total,
       page,
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     };
   }
 
@@ -157,9 +160,7 @@ export class UserService {
   public async getActiveUsers(): Promise<IUser[]> {
     try {
       // Get all users sorted by creation date
-      const users = await User.find()
-        .sort({ createdAt: -1 })
-        .lean();
+      const users = await User.find().sort({ createdAt: -1 }).lean();
 
       return users;
     } catch (error) {

@@ -10,7 +10,7 @@ class AppError extends Error {
     super(message);
     this.statusCode = statusCode;
     this.isOperational = true;
-    
+
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -25,7 +25,7 @@ export class AuthController {
       if (!name || !email || !password) {
         res.status(400).json({
           success: false,
-          message: 'Name, email, and password are required'
+          message: 'Name, email, and password are required',
         });
         return;
       }
@@ -33,7 +33,7 @@ export class AuthController {
       if (password.length < 6) {
         res.status(400).json({
           success: false,
-          message: 'Password must be at least 6 characters long'
+          message: 'Password must be at least 6 characters long',
         });
         return;
       }
@@ -43,7 +43,7 @@ export class AuthController {
       if (existingUser) {
         res.status(409).json({
           success: false,
-          message: 'User with this email already exists'
+          message: 'User with this email already exists',
         });
         return;
       }
@@ -52,7 +52,7 @@ export class AuthController {
       const user = new User({
         name: name.trim(),
         email: email.toLowerCase().trim(),
-        password
+        password,
       });
 
       await user.save();
@@ -71,8 +71,8 @@ export class AuthController {
         data: {
           user: userResponse,
           token,
-          refreshToken
-        }
+          refreshToken,
+        },
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -91,29 +91,31 @@ export class AuthController {
       if (!email || !password) {
         res.status(400).json({
           success: false,
-          message: 'Email and password are required'
+          message: 'Email and password are required',
         });
         return;
       }
 
       // Find user and include password for comparison
-      const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
-      
+      const user = await User.findOne({ email: email.toLowerCase() }).select(
+        '+password'
+      );
+
       if (!user) {
         res.status(401).json({
           success: false,
-          message: 'Invalid email or password'
+          message: 'Invalid email or password',
         });
         return;
       }
 
       // Check password
       const isPasswordValid = await (user as any).comparePassword(password);
-      
+
       if (!isPasswordValid) {
         res.status(401).json({
           success: false,
-          message: 'Invalid email or password'
+          message: 'Invalid email or password',
         });
         return;
       }
@@ -132,8 +134,8 @@ export class AuthController {
         data: {
           user: userResponse,
           token,
-          refreshToken
-        }
+          refreshToken,
+        },
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -151,21 +153,21 @@ export class AuthController {
       if (!refreshToken) {
         res.status(400).json({
           success: false,
-          message: 'Refresh token is required'
+          message: 'Refresh token is required',
         });
         return;
       }
 
       // Verify refresh token
       const decoded = AuthUtils.verifyRefreshToken(refreshToken);
-      
+
       // Get user
       const user = await User.findById(decoded.userId);
-      
+
       if (!user) {
         res.status(401).json({
           success: false,
-          message: 'User not found'
+          message: 'User not found',
         });
         return;
       }
@@ -179,13 +181,13 @@ export class AuthController {
         message: 'Token refreshed successfully',
         data: {
           token: newToken,
-          refreshToken: newRefreshToken
-        }
+          refreshToken: newRefreshToken,
+        },
       });
     } catch (error) {
       res.status(401).json({
         success: false,
-        message: 'Invalid refresh token'
+        message: 'Invalid refresh token',
       });
     }
   };
@@ -196,7 +198,7 @@ export class AuthController {
     // For now, we'll just return success
     res.status(200).json({
       success: true,
-      message: 'Logout successful'
+      message: 'Logout successful',
     });
   };
 
@@ -205,18 +207,18 @@ export class AuthController {
     try {
       // User is attached to request by auth middleware
       const user = req.user;
-      
+
       if (!user) {
         res.status(401).json({
           success: false,
-          message: 'Not authenticated'
+          message: 'Not authenticated',
         });
         return;
       }
 
       res.status(200).json({
         success: true,
-        data: user
+        data: user,
       });
     } catch (error) {
       throw new AppError('Failed to get user profile');
@@ -224,40 +226,44 @@ export class AuthController {
   };
 
   // POST /api/v1/auth/forgot-password
-  public forgotPassword = async (req: Request, res: Response): Promise<void> => {
+  public forgotPassword = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { email } = req.body;
 
       if (!email) {
         res.status(400).json({
           success: false,
-          message: 'Email is required'
+          message: 'Email is required',
         });
         return;
       }
 
       const user = await User.findOne({ email: email.toLowerCase() });
-      
+
       if (!user) {
         // Don't reveal if user exists or not for security
         res.status(200).json({
           success: true,
-          message: 'If an account with that email exists, a password reset link has been sent'
+          message:
+            'If an account with that email exists, a password reset link has been sent',
         });
         return;
       }
 
       // Generate password reset token
       const resetToken = AuthUtils.generatePasswordResetToken(user);
-      
+
       // In a real app, you would send this token via email
       // For now, we'll just return it (remove this in production!)
       res.status(200).json({
         success: true,
         message: 'Password reset token generated',
         data: {
-          resetToken // Remove this in production!
-        }
+          resetToken, // Remove this in production!
+        },
       });
     } catch (error) {
       throw new AppError('Failed to process password reset request');
@@ -272,7 +278,7 @@ export class AuthController {
       if (!token || !password) {
         res.status(400).json({
           success: false,
-          message: 'Token and password are required'
+          message: 'Token and password are required',
         });
         return;
       }
@@ -280,21 +286,21 @@ export class AuthController {
       if (password.length < 6) {
         res.status(400).json({
           success: false,
-          message: 'Password must be at least 6 characters long'
+          message: 'Password must be at least 6 characters long',
         });
         return;
       }
 
       // Verify reset token
       const decoded = AuthUtils.verifyPasswordResetToken(token);
-      
+
       // Get user
       const user = await User.findById(decoded.userId);
-      
+
       if (!user) {
         res.status(400).json({
           success: false,
-          message: 'Invalid or expired token'
+          message: 'Invalid or expired token',
         });
         return;
       }
@@ -305,18 +311,21 @@ export class AuthController {
 
       res.status(200).json({
         success: true,
-        message: 'Password reset successfully'
+        message: 'Password reset successfully',
       });
     } catch (error) {
       res.status(400).json({
         success: false,
-        message: 'Invalid or expired token'
+        message: 'Invalid or expired token',
       });
     }
   };
 
   // POST /api/v1/auth/change-password
-  public changePassword = async (req: Request, res: Response): Promise<void> => {
+  public changePassword = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const { currentPassword, newPassword } = req.body;
       const user = req.user;
@@ -324,7 +333,7 @@ export class AuthController {
       if (!user) {
         res.status(401).json({
           success: false,
-          message: 'Not authenticated'
+          message: 'Not authenticated',
         });
         return;
       }
@@ -332,7 +341,7 @@ export class AuthController {
       if (!currentPassword || !newPassword) {
         res.status(400).json({
           success: false,
-          message: 'Current password and new password are required'
+          message: 'Current password and new password are required',
         });
         return;
       }
@@ -340,29 +349,33 @@ export class AuthController {
       if (newPassword.length < 6) {
         res.status(400).json({
           success: false,
-          message: 'New password must be at least 6 characters long'
+          message: 'New password must be at least 6 characters long',
         });
         return;
       }
 
       // Get user with password for comparison
-      const userWithPassword = await User.findById(user._id).select('+password');
-      
+      const userWithPassword = await User.findById(user._id).select(
+        '+password'
+      );
+
       if (!userWithPassword) {
         res.status(404).json({
           success: false,
-          message: 'User not found'
+          message: 'User not found',
         });
         return;
       }
 
       // Verify current password
-      const isCurrentPasswordValid = await (userWithPassword as any).comparePassword(currentPassword);
-      
+      const isCurrentPasswordValid = await (
+        userWithPassword as any
+      ).comparePassword(currentPassword);
+
       if (!isCurrentPasswordValid) {
         res.status(400).json({
           success: false,
-          message: 'Current password is incorrect'
+          message: 'Current password is incorrect',
         });
         return;
       }
@@ -373,7 +386,7 @@ export class AuthController {
 
       res.status(200).json({
         success: true,
-        message: 'Password changed successfully'
+        message: 'Password changed successfully',
       });
     } catch (error) {
       if (error instanceof Error) {

@@ -12,7 +12,7 @@ router.get('/', mealController.getAllMeals);
 router.get('/types', (req, res) => {
   res.status(200).json({
     success: true,
-    data: ['breakfast', 'lunch', 'snack', 'dinner']
+    data: ['breakfast', 'lunch', 'snack', 'dinner'],
   });
 });
 

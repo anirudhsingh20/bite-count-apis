@@ -12,7 +12,12 @@ router.get('/', authenticate, requireAdmin, userController.getAllUsers);
 router.get('/:id', authenticate, userController.getUserById);
 
 // GET /api/v1/users/email/:email - Get user by email (admin only)
-router.get('/email/:email', authenticate, requireAdmin, userController.getUserByEmail);
+router.get(
+  '/email/:email',
+  authenticate,
+  requireAdmin,
+  userController.getUserByEmail
+);
 
 // POST /api/v1/users - Create new user (admin only)
 router.post('/', authenticate, requireAdmin, userController.createUser);
@@ -30,6 +35,11 @@ router.get('/search', authenticate, requireAdmin, userController.searchUsers);
 router.get('/:id/info', authenticate, userController.getUserInfo);
 
 // GET /api/v1/users/active - Get active users (admin only)
-router.get('/active', authenticate, requireAdmin, userController.getActiveUsers);
+router.get(
+  '/active',
+  authenticate,
+  requireAdmin,
+  userController.getActiveUsers
+);
 
 export default router;

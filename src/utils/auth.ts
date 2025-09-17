@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { IUser } from '../models/UserSchema';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET =
+  process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 export interface JWTPayload {
@@ -16,11 +17,11 @@ export class AuthUtils {
   public static generateToken(user: IUser): string {
     const payload: JWTPayload = {
       userId: (user._id as any).toString(),
-      email: user.email
+      email: user.email,
     };
 
     return jwt.sign(payload, JWT_SECRET, {
-      expiresIn: JWT_EXPIRES_IN
+      expiresIn: JWT_EXPIRES_IN,
     } as jwt.SignOptions);
   }
 
@@ -37,16 +38,19 @@ export class AuthUtils {
   public static generateRefreshToken(user: IUser): string {
     const payload = {
       userId: (user._id as any).toString(),
-      type: 'refresh'
+      type: 'refresh',
     };
 
     return jwt.sign(payload, JWT_SECRET, {
-      expiresIn: '30d'
+      expiresIn: '30d',
     } as jwt.SignOptions);
   }
 
   // Verify refresh token
-  public static verifyRefreshToken(token: string): { userId: string; type: string } {
+  public static verifyRefreshToken(token: string): {
+    userId: string;
+    type: string;
+  } {
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as any;
       if (decoded.type !== 'refresh') {
@@ -63,16 +67,20 @@ export class AuthUtils {
     const payload = {
       userId: (user._id as any).toString(),
       email: user.email,
-      type: 'password-reset'
+      type: 'password-reset',
     };
 
     return jwt.sign(payload, JWT_SECRET, {
-      expiresIn: '1h' // Short expiry for security
+      expiresIn: '1h', // Short expiry for security
     } as jwt.SignOptions);
   }
 
   // Verify password reset token
-  public static verifyPasswordResetToken(token: string): { userId: string; email: string; type: string } {
+  public static verifyPasswordResetToken(token: string): {
+    userId: string;
+    email: string;
+    type: string;
+  } {
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as any;
       if (decoded.type !== 'password-reset') {

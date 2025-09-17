@@ -44,7 +44,7 @@ const startServer = async () => {
     // Connect to MongoDB
     const db = Database.getInstance();
     await db.connect();
-    
+
     // Start the server
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);

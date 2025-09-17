@@ -20,16 +20,17 @@ class Database {
     }
 
     try {
-      const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/bite-count-api';
-      
+      const mongoUri =
+        process.env.MONGODB_URI || 'mongodb://localhost:27017/bite-count-api';
+
       await mongoose.connect(mongoUri);
-      
+
       this.isConnected = true;
       console.log('✅ Connected to MongoDB successfully');
       console.log(`🔗 Database: ${mongoose.connection.name}`);
-      
+
       // Handle connection events
-      mongoose.connection.on('error', (error) => {
+      mongoose.connection.on('error', error => {
         console.error('❌ MongoDB connection error:', error);
         this.isConnected = false;
       });
@@ -43,7 +44,6 @@ class Database {
         console.log('🔄 MongoDB reconnected');
         this.isConnected = true;
       });
-
     } catch (error) {
       console.error('❌ Failed to connect to MongoDB:', error);
       this.isConnected = false;
