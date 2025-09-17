@@ -114,7 +114,7 @@ export class UserController {
         data: newUser,
         message: 'User created successfully',
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         if (
           error.message.includes('already exists') ||
@@ -162,7 +162,7 @@ export class UserController {
         data: updatedUser,
         message: 'User updated successfully',
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('already taken')) {
           res.status(409).json({
@@ -243,7 +243,7 @@ export class UserController {
         success: true,
         data: info,
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error && error.message.includes('not found')) {
         res.status(404).json({
           success: false,

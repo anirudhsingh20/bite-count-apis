@@ -80,7 +80,7 @@ export class FoodLogController {
         data: newFoodLog,
         message: 'Food log created successfully',
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('validation failed')) {
           res.status(400).json({
@@ -179,7 +179,7 @@ export class FoodLogController {
       const result = await this.foodLogService.createBulkFoodLog(bulkLogData);
 
       res.status(201).json(result);
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('validation failed')) {
           res.status(400).json({
@@ -276,7 +276,7 @@ export class FoodLogController {
         data: updatedFoodLog,
         message: 'Food log updated successfully',
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('validation failed')) {
           res.status(400).json({
@@ -373,7 +373,7 @@ export class FoodLogController {
       };
 
       res.status(200).json(response);
-    } catch (_) {
+    } catch (error) {
       console.error('Error in getFoodLogsByUser controller:', error);
       if (error instanceof Error) {
         res.status(500).json({

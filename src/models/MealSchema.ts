@@ -152,7 +152,7 @@ mealSchema.pre('save', async function (next) {
     }
 
     next();
-  } catch (_) {
+  } catch (error) {
     console.error('❌ Error in meal pre-save middleware:', error);
     next(error as Error);
   }
