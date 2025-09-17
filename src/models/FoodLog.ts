@@ -1,5 +1,3 @@
-import FoodLogModel from './FoodLogSchema';
-
 export interface FoodLog {
   _id: string;
   user: string;
