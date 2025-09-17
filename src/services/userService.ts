@@ -58,7 +58,7 @@ export class UserService {
 
       const savedUser = await newUser.save();
       return savedUser.toObject();
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to create user: ${error.message}`);
       }
@@ -93,7 +93,7 @@ export class UserService {
       }).lean();
 
       return updatedUser;
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to update user: ${error.message}`);
       }
@@ -149,7 +149,7 @@ export class UserService {
 
       const info = await (user as any).getUserInfo();
       return info;
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to get user info: ${error.message}`);
       }

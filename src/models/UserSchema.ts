@@ -83,7 +83,7 @@ userSchema.pre('save', async function (next) {
     }
 
     next();
-  } catch (_) {
+  } catch (error) {
     console.error('❌ Error in pre-save middleware:', error);
     next(error as Error);
   }
@@ -105,7 +105,7 @@ userSchema.pre('insertMany', async function (next, docs) {
     }
 
     next();
-  } catch (_) {
+  } catch (error) {
     console.error('❌ Error in pre-insertMany middleware:', error);
     next(error as Error);
   }

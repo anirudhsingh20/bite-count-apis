@@ -68,7 +68,7 @@ export class MealService {
       const newMeal = new Meal(mealData);
       const savedMeal = await newMeal.save();
       return savedMeal.toObject();
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to create meal: ${error.message}`);
       }
@@ -102,7 +102,7 @@ export class MealService {
         .lean();
 
       return updatedMeal;
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to update meal: ${error.message}`);
       }
@@ -328,7 +328,7 @@ export class MealService {
 
       const info = await (meal as any).getMealInfo();
       return info;
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to get meal info: ${error.message}`);
       }

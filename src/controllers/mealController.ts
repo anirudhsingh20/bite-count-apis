@@ -135,7 +135,7 @@ export class MealController {
         data: newMeal,
         message: 'Meal created successfully',
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('validation failed')) {
           res.status(400).json({
@@ -215,7 +215,7 @@ export class MealController {
         data: updatedMeal,
         message: 'Meal updated successfully',
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('validation failed')) {
           res.status(400).json({
@@ -500,7 +500,7 @@ export class MealController {
         success: true,
         data: info,
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error && error.message.includes('not found')) {
         res.status(404).json({
           success: false,

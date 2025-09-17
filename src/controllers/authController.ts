@@ -74,7 +74,7 @@ export class AuthController {
           refreshToken,
         },
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new AppError(`Registration failed: ${error.message}`);
       }
@@ -137,7 +137,7 @@ export class AuthController {
           refreshToken,
         },
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new AppError(`Login failed: ${error.message}`);
       }
@@ -388,7 +388,7 @@ export class AuthController {
         success: true,
         message: 'Password changed successfully',
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new AppError(`Password change failed: ${error.message}`);
       }

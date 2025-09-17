@@ -46,7 +46,7 @@ export class TagService {
 
       const savedTag = await newTag.save();
       return savedTag.toObject();
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('duplicate key')) {
           throw new Error('Tag with this name already exists');
@@ -79,7 +79,7 @@ export class TagService {
       }).lean();
 
       return updatedTag;
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('duplicate key')) {
           throw new Error('Tag with this name already exists');
@@ -203,7 +203,7 @@ export class TagService {
 
       const info = await (tag as any).getTagInfo();
       return info;
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to get tag info: ${error.message}`);
       }

@@ -52,7 +52,7 @@ const startServer = async () => {
       console.log(`🔗 Health check: http://localhost:${PORT}/api/v1/health`);
       // console.log(`🗄️ Database: ${process.env.MONGODB_URI || 'mongodb://localhost:27017/bite-count-api'}`);
     });
-  } catch (_) {
+  } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);
   }

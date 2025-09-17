@@ -113,7 +113,7 @@ export class TagController {
         data: newTag,
         message: 'Tag created successfully',
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('already exists')) {
           res.status(409).json({
@@ -182,7 +182,7 @@ export class TagController {
         data: updatedTag,
         message: 'Tag updated successfully',
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('already exists')) {
           res.status(409).json({
@@ -310,7 +310,7 @@ export class TagController {
         success: true,
         data: info,
       });
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error && error.message.includes('not found')) {
         res.status(404).json({
           success: false,

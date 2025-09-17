@@ -30,7 +30,7 @@ const resetDatabase = async () => {
     console.log(`🗑️ Deleted ${tagResult.deletedCount} tag records`);
 
     console.log('✅ Database reset completed successfully!');
-  } catch (_) {
+  } catch (error) {
     console.error('❌ Error resetting database:', error);
     process.exit(1);
   } finally {

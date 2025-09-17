@@ -84,7 +84,7 @@ tagSchema.pre('save', async function (next) {
     }
 
     next();
-  } catch (_) {
+  } catch (error) {
     console.error('❌ Error in tag pre-save middleware:', error);
     next(error as Error);
   }

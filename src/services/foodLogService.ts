@@ -58,7 +58,7 @@ export class FoodLogService {
         .lean();
 
       return updatedLog;
-    } catch (_) {
+    } catch (error) {
       throw new Error(
         `Failed to update food log quantity: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
@@ -113,7 +113,7 @@ export class FoodLogService {
 
         return savedFoodLog;
       }
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to create food log: ${error.message}`);
       }
@@ -190,7 +190,7 @@ export class FoodLogService {
               }
 
               return updatedLog;
-            } catch (_) {
+            } catch (error) {
               throw new Error(
                 `Failed to update food log for meal ${item.meal}: ${error instanceof Error ? error.message : 'Unknown error'}`
               );
@@ -280,7 +280,7 @@ export class FoodLogService {
         },
         message: `Successfully processed ${totalProcessedItems} food items (${createdLogs.length} new, ${updatedLogs.length} updated)`,
       };
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to create bulk food log: ${error.message}`);
       }
@@ -319,7 +319,7 @@ export class FoodLogService {
         .lean();
 
       return updatedFoodLog;
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to update food log: ${error.message}`);
       }
@@ -381,7 +381,7 @@ export class FoodLogService {
         page,
         pages: Math.ceil(total / limit),
       };
-    } catch (_) {
+    } catch (error) {
       console.error('Error in getFoodLogsByUser:', error);
       throw new Error(
         `Failed to fetch food logs for user ${userId}: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -451,7 +451,7 @@ export class FoodLogService {
         date
       );
       return summary;
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new Error(
           `Failed to get daily nutrition summary: ${error.message}`
@@ -473,7 +473,7 @@ export class FoodLogService {
         endDate
       );
       return summaries;
-    } catch (_) {
+    } catch (error) {
       if (error instanceof Error) {
         throw new Error(
           `Failed to get nutrition summary range: ${error.message}`
@@ -612,7 +612,9 @@ export class FoodLogService {
       };
 
       result.mealTypeBreakdown.forEach((item: any) => {
-        if (mealTypeBreakdown.hasOwnProperty(item.mealType)) {
+        if (
+          Object.prototype.hasOwnProperty.call(mealTypeBreakdown, item.mealType)
+        ) {
           mealTypeBreakdown[item.mealType as keyof typeof mealTypeBreakdown] +=
             item.quantity;
         }
