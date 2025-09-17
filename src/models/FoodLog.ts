@@ -1,4 +1,4 @@
-import FoodLog from './FoodLogSchema';
+import FoodLogModel from './FoodLogSchema';
 
 export interface FoodLog {
   _id: string;

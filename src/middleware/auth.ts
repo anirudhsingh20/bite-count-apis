@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthUtils, JWTPayload } from '../utils/auth';
+import { AuthUtils } from '../utils/auth';
 import User from '../models/UserSchema';
 
 // Extend Request interface to include user
@@ -46,7 +46,7 @@ export const authenticate = async (
     // Add user to request object
     req.user = user;
     next();
-  } catch (error) {
+  } catch (_) {
     res.status(401).json({
       success: false,
       message: 'Invalid token.',
@@ -73,7 +73,7 @@ export const optionalAuth = async (
     }
 
     next();
-  } catch (error) {
+  } catch (_) {
     // Continue without authentication for optional auth
     next();
   }

@@ -36,7 +36,7 @@ export class MealService {
         .populate('tags', 'name category color')
         .lean();
       return meal;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Invalid meal ID format');
     }
   }
@@ -68,7 +68,7 @@ export class MealService {
       const newMeal = new Meal(mealData);
       const savedMeal = await newMeal.save();
       return savedMeal.toObject();
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new Error(`Failed to create meal: ${error.message}`);
       }
@@ -102,7 +102,7 @@ export class MealService {
         .lean();
 
       return updatedMeal;
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new Error(`Failed to update meal: ${error.message}`);
       }
@@ -114,7 +114,7 @@ export class MealService {
     try {
       const result = await Meal.findByIdAndDelete(id);
       return !!result;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to delete meal');
     }
   }
@@ -212,7 +212,7 @@ export class MealService {
           averageCarbs: 0,
         }
       );
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to get meal statistics');
     }
   }
@@ -328,7 +328,7 @@ export class MealService {
 
       const info = await (meal as any).getMealInfo();
       return info;
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new Error(`Failed to get meal info: ${error.message}`);
       }
@@ -341,7 +341,7 @@ export class MealService {
     page: number = 1,
     limit: number = 10
   ): Promise<{ data: IMeal[]; total: number; page: number; pages: number }> {
-    const skip = (page - 1) * limit;
+    const _skip = (page - 1) * limit;
 
     const [data, total] = await Promise.all([
       Meal.findByTags(tags, page, limit).then(results =>
@@ -367,7 +367,7 @@ export class MealService {
         .sort({ name: 1 })
         .lean();
       return tags;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to get all tags');
     }
   }
@@ -384,7 +384,7 @@ export class MealService {
         .sort({ name: 1 })
         .lean();
       return tags;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to get tags by category');
     }
   }
@@ -413,7 +413,7 @@ export class MealService {
         page,
         pages: Math.ceil(total / limit),
       };
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to get meals by user');
     }
   }

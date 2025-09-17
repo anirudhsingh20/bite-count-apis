@@ -29,7 +29,7 @@ export class TagService {
     try {
       const tag = await Tag.findById(id).lean();
       return tag;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Invalid tag ID format');
     }
   }
@@ -46,7 +46,7 @@ export class TagService {
 
       const savedTag = await newTag.save();
       return savedTag.toObject();
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         if (error.message.includes('duplicate key')) {
           throw new Error('Tag with this name already exists');
@@ -79,7 +79,7 @@ export class TagService {
       }).lean();
 
       return updatedTag;
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         if (error.message.includes('duplicate key')) {
           throw new Error('Tag with this name already exists');
@@ -94,7 +94,7 @@ export class TagService {
     try {
       const result = await Tag.findByIdAndDelete(id);
       return !!result;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to delete tag');
     }
   }
@@ -166,7 +166,7 @@ export class TagService {
         ...baseStats,
         tagsByCategory,
       };
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to get tag statistics');
     }
   }
@@ -175,7 +175,7 @@ export class TagService {
     try {
       const tags = await Tag.find({ isActive: true }).sort({ name: 1 }).lean();
       return tags;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to get active tags');
     }
   }
@@ -189,7 +189,7 @@ export class TagService {
         .sort({ name: 1 })
         .lean();
       return tags;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to get tags by category');
     }
   }
@@ -203,7 +203,7 @@ export class TagService {
 
       const info = await (tag as any).getTagInfo();
       return info;
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new Error(`Failed to get tag info: ${error.message}`);
       }

@@ -44,7 +44,7 @@ class Database {
         console.log('🔄 MongoDB reconnected');
         this.isConnected = true;
       });
-    } catch (error) {
+    } catch (_) {
       console.error('❌ Failed to connect to MongoDB:', error);
       this.isConnected = false;
       throw error;
@@ -60,7 +60,7 @@ class Database {
       await mongoose.disconnect();
       this.isConnected = false;
       console.log('🔌 Disconnected from MongoDB');
-    } catch (error) {
+    } catch (_) {
       console.error('❌ Error disconnecting from MongoDB:', error);
       throw error;
     }

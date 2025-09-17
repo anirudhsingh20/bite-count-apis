@@ -29,7 +29,7 @@ export class UserService {
     try {
       const user = await User.findById(id).lean();
       return user;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Invalid user ID format');
     }
   }
@@ -38,7 +38,7 @@ export class UserService {
     try {
       const user = await User.findByEmail(email);
       return user;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to find user by email');
     }
   }
@@ -58,7 +58,7 @@ export class UserService {
 
       const savedUser = await newUser.save();
       return savedUser.toObject();
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new Error(`Failed to create user: ${error.message}`);
       }
@@ -93,7 +93,7 @@ export class UserService {
       }).lean();
 
       return updatedUser;
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new Error(`Failed to update user: ${error.message}`);
       }
@@ -105,7 +105,7 @@ export class UserService {
     try {
       const result = await User.findByIdAndDelete(id);
       return !!result;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to delete user');
     }
   }
@@ -149,7 +149,7 @@ export class UserService {
 
       const info = await (user as any).getUserInfo();
       return info;
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new Error(`Failed to get user info: ${error.message}`);
       }
@@ -163,7 +163,7 @@ export class UserService {
       const users = await User.find().sort({ createdAt: -1 }).lean();
 
       return users;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to get active users');
     }
   }

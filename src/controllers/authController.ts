@@ -74,7 +74,7 @@ export class AuthController {
           refreshToken,
         },
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new AppError(`Registration failed: ${error.message}`);
       }
@@ -137,7 +137,7 @@ export class AuthController {
           refreshToken,
         },
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new AppError(`Login failed: ${error.message}`);
       }
@@ -184,7 +184,7 @@ export class AuthController {
           refreshToken: newRefreshToken,
         },
       });
-    } catch (error) {
+    } catch (_) {
       res.status(401).json({
         success: false,
         message: 'Invalid refresh token',
@@ -220,7 +220,7 @@ export class AuthController {
         success: true,
         data: user,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to get user profile');
     }
   };
@@ -265,7 +265,7 @@ export class AuthController {
           resetToken, // Remove this in production!
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to process password reset request');
     }
   };
@@ -313,7 +313,7 @@ export class AuthController {
         success: true,
         message: 'Password reset successfully',
       });
-    } catch (error) {
+    } catch (_) {
       res.status(400).json({
         success: false,
         message: 'Invalid or expired token',
@@ -388,7 +388,7 @@ export class AuthController {
         success: true,
         message: 'Password changed successfully',
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new AppError(`Password change failed: ${error.message}`);
       }

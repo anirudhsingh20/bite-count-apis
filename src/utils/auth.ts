@@ -29,7 +29,7 @@ export class AuthUtils {
   public static verifyToken(token: string): JWTPayload {
     try {
       return jwt.verify(token, JWT_SECRET) as JWTPayload;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Invalid or expired token');
     }
   }
@@ -57,7 +57,7 @@ export class AuthUtils {
         throw new Error('Invalid token type');
       }
       return decoded;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Invalid or expired refresh token');
     }
   }
@@ -87,7 +87,7 @@ export class AuthUtils {
         throw new Error('Invalid token type');
       }
       return decoded;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Invalid or expired password reset token');
     }
   }

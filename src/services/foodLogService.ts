@@ -32,7 +32,7 @@ export class FoodLogService {
       const existingLog = await FoodLog.findOne(query);
 
       return existingLog;
-    } catch (error) {
+    } catch (_) {
       return null;
     }
   }
@@ -58,7 +58,7 @@ export class FoodLogService {
         .lean();
 
       return updatedLog;
-    } catch (error) {
+    } catch (_) {
       throw new Error(
         `Failed to update food log quantity: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
@@ -113,7 +113,7 @@ export class FoodLogService {
 
         return savedFoodLog;
       }
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new Error(`Failed to create food log: ${error.message}`);
       }
@@ -190,7 +190,7 @@ export class FoodLogService {
               }
 
               return updatedLog;
-            } catch (error) {
+            } catch (_) {
               throw new Error(
                 `Failed to update food log for meal ${item.meal}: ${error instanceof Error ? error.message : 'Unknown error'}`
               );
@@ -280,7 +280,7 @@ export class FoodLogService {
         },
         message: `Successfully processed ${totalProcessedItems} food items (${createdLogs.length} new, ${updatedLogs.length} updated)`,
       };
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new Error(`Failed to create bulk food log: ${error.message}`);
       }
@@ -295,7 +295,7 @@ export class FoodLogService {
         .populate('user', 'name email')
         .lean();
       return foodLog;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Invalid food log ID format');
     }
   }
@@ -319,7 +319,7 @@ export class FoodLogService {
         .lean();
 
       return updatedFoodLog;
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new Error(`Failed to update food log: ${error.message}`);
       }
@@ -331,7 +331,7 @@ export class FoodLogService {
     try {
       const result = await FoodLog.findByIdAndDelete(id);
       return !!result;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to delete food log');
     }
   }
@@ -381,7 +381,7 @@ export class FoodLogService {
         page,
         pages: Math.ceil(total / limit),
       };
-    } catch (error) {
+    } catch (_) {
       console.error('Error in getFoodLogsByUser:', error);
       throw new Error(
         `Failed to fetch food logs for user ${userId}: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -451,7 +451,7 @@ export class FoodLogService {
         date
       );
       return summary;
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new Error(
           `Failed to get daily nutrition summary: ${error.message}`
@@ -473,7 +473,7 @@ export class FoodLogService {
         endDate
       );
       return summaries;
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         throw new Error(
           `Failed to get nutrition summary range: ${error.message}`
@@ -554,7 +554,7 @@ export class FoodLogService {
         .lean();
 
       return foodLogs;
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to get recent food logs');
     }
   }
@@ -627,7 +627,7 @@ export class FoodLogService {
         averageQuantity: result.averageQuantity || 0,
         mealTypeBreakdown,
       };
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to get food log statistics');
     }
   }
@@ -641,7 +641,7 @@ export class FoodLogService {
       const startDate = Date.now() - weeks * 7 * 24 * 60 * 60 * 1000;
 
       return await this.getNutritionSummaryRange(userId, startDate, endDate);
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to get weekly nutrition trend');
     }
   }
@@ -661,7 +661,7 @@ export class FoodLogService {
         startDateEpoch,
         endDate
       );
-    } catch (error) {
+    } catch (_) {
       throw new Error('Failed to get monthly nutrition trend');
     }
   }

@@ -40,7 +40,7 @@ export class MealController {
           limit,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch meals');
     }
   };
@@ -63,7 +63,7 @@ export class MealController {
         success: true,
         data: meal,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch meal');
     }
   };
@@ -135,7 +135,7 @@ export class MealController {
         data: newMeal,
         message: 'Meal created successfully',
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         if (error.message.includes('validation failed')) {
           res.status(400).json({
@@ -215,7 +215,7 @@ export class MealController {
         data: updatedMeal,
         message: 'Meal updated successfully',
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         if (error.message.includes('validation failed')) {
           res.status(400).json({
@@ -247,7 +247,7 @@ export class MealController {
         success: true,
         message: 'Meal deleted successfully',
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to delete meal');
     }
   };
@@ -299,7 +299,7 @@ export class MealController {
           limit: parseInt(limit as string) || 10,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to search meals');
     }
   };
@@ -313,7 +313,7 @@ export class MealController {
         success: true,
         data: stats,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch meal statistics');
     }
   };
@@ -356,7 +356,7 @@ export class MealController {
           limit,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch meals by calorie range');
     }
   };
@@ -399,7 +399,7 @@ export class MealController {
           limit,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch meals by protein range');
     }
   };
@@ -442,7 +442,7 @@ export class MealController {
           limit,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch meals by fat range');
     }
   };
@@ -485,7 +485,7 @@ export class MealController {
           limit,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch meals by carbs range');
     }
   };
@@ -500,7 +500,7 @@ export class MealController {
         success: true,
         data: info,
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error && error.message.includes('not found')) {
         res.status(404).json({
           success: false,
@@ -521,7 +521,7 @@ export class MealController {
         success: true,
         data: tags,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch tags');
     }
   };
@@ -566,7 +566,7 @@ export class MealController {
           limit,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch meals by tags');
     }
   };
@@ -592,7 +592,7 @@ export class MealController {
           limit,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to get meals by user');
     }
   };

@@ -39,7 +39,7 @@ export class UserController {
           limit,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch users');
     }
   };
@@ -62,7 +62,7 @@ export class UserController {
         success: true,
         data: user,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch user');
     }
   };
@@ -88,7 +88,7 @@ export class UserController {
         success: true,
         data: user,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch user by email');
     }
   };
@@ -114,7 +114,7 @@ export class UserController {
         data: newUser,
         message: 'User created successfully',
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         if (
           error.message.includes('already exists') ||
@@ -162,7 +162,7 @@ export class UserController {
         data: updatedUser,
         message: 'User updated successfully',
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         if (error.message.includes('already taken')) {
           res.status(409).json({
@@ -202,7 +202,7 @@ export class UserController {
         success: true,
         message: 'User deleted successfully',
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to delete user');
     }
   };
@@ -228,7 +228,7 @@ export class UserController {
           limit: parseInt(limit as string) || 10,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to search users');
     }
   };
@@ -243,7 +243,7 @@ export class UserController {
         success: true,
         data: info,
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error && error.message.includes('not found')) {
         res.status(404).json({
           success: false,
@@ -268,7 +268,7 @@ export class UserController {
         data: users,
         count: users.length,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch active users');
     }
   };

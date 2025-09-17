@@ -39,7 +39,7 @@ export class TagController {
           limit,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch tags');
     }
   };
@@ -62,7 +62,7 @@ export class TagController {
         success: true,
         data: tag,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch tag');
     }
   };
@@ -113,7 +113,7 @@ export class TagController {
         data: newTag,
         message: 'Tag created successfully',
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         if (error.message.includes('already exists')) {
           res.status(409).json({
@@ -182,7 +182,7 @@ export class TagController {
         data: updatedTag,
         message: 'Tag updated successfully',
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         if (error.message.includes('already exists')) {
           res.status(409).json({
@@ -221,7 +221,7 @@ export class TagController {
         success: true,
         message: 'Tag deleted successfully',
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to delete tag');
     }
   };
@@ -249,7 +249,7 @@ export class TagController {
           limit: parseInt(limit as string) || 10,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to search tags');
     }
   };
@@ -263,7 +263,7 @@ export class TagController {
         success: true,
         data: stats,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch tag statistics');
     }
   };
@@ -277,7 +277,7 @@ export class TagController {
         success: true,
         data: tags,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch active tags');
     }
   };
@@ -295,7 +295,7 @@ export class TagController {
         success: true,
         data: tags,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch tags by category');
     }
   };
@@ -310,7 +310,7 @@ export class TagController {
         success: true,
         data: info,
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error && error.message.includes('not found')) {
         res.status(404).json({
           success: false,

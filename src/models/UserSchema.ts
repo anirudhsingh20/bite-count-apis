@@ -83,7 +83,7 @@ userSchema.pre('save', async function (next) {
     }
 
     next();
-  } catch (error) {
+  } catch (_) {
     console.error('❌ Error in pre-save middleware:', error);
     next(error as Error);
   }
@@ -105,7 +105,7 @@ userSchema.pre('insertMany', async function (next, docs) {
     }
 
     next();
-  } catch (error) {
+  } catch (_) {
     console.error('❌ Error in pre-insertMany middleware:', error);
     next(error as Error);
   }
@@ -118,7 +118,7 @@ interface IUserModel extends mongoose.Model<IUser> {
 }
 
 // Define instance methods interface
-interface IUserDocument extends IUser {
+interface _IUserDocument extends IUser {
   getBiteCountStats(): Promise<any>;
 }
 

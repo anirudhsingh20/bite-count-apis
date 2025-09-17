@@ -84,7 +84,7 @@ tagSchema.pre('save', async function (next) {
     }
 
     next();
-  } catch (error) {
+  } catch (_) {
     console.error('❌ Error in tag pre-save middleware:', error);
     next(error as Error);
   }
@@ -103,7 +103,7 @@ interface ITagModel extends mongoose.Model<ITag> {
 }
 
 // Define instance methods interface
-interface ITagDocument extends ITag {
+interface _ITagDocument extends ITag {
   getTagInfo(): any;
 }
 

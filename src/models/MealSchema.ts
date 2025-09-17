@@ -152,7 +152,7 @@ mealSchema.pre('save', async function (next) {
     }
 
     next();
-  } catch (error) {
+  } catch (_) {
     console.error('❌ Error in meal pre-save middleware:', error);
     next(error as Error);
   }
@@ -191,7 +191,7 @@ interface IMealModel extends mongoose.Model<IMeal> {
 }
 
 // Define instance methods interface
-interface IMealDocument extends IMeal {
+interface _IMealDocument extends IMeal {
   getMealInfo(): any;
 }
 

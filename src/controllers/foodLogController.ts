@@ -80,7 +80,7 @@ export class FoodLogController {
         data: newFoodLog,
         message: 'Food log created successfully',
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         if (error.message.includes('validation failed')) {
           res.status(400).json({
@@ -179,7 +179,7 @@ export class FoodLogController {
       const result = await this.foodLogService.createBulkFoodLog(bulkLogData);
 
       res.status(201).json(result);
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         if (error.message.includes('validation failed')) {
           res.status(400).json({
@@ -214,7 +214,7 @@ export class FoodLogController {
         success: true,
         data: foodLog,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch food log');
     }
   };
@@ -276,7 +276,7 @@ export class FoodLogController {
         data: updatedFoodLog,
         message: 'Food log updated successfully',
       });
-    } catch (error) {
+    } catch (_) {
       if (error instanceof Error) {
         if (error.message.includes('validation failed')) {
           res.status(400).json({
@@ -308,7 +308,7 @@ export class FoodLogController {
         success: true,
         message: 'Food log deleted successfully',
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to delete food log');
     }
   };
@@ -373,7 +373,7 @@ export class FoodLogController {
       };
 
       res.status(200).json(response);
-    } catch (error) {
+    } catch (_) {
       console.error('Error in getFoodLogsByUser controller:', error);
       if (error instanceof Error) {
         res.status(500).json({
@@ -423,7 +423,7 @@ export class FoodLogController {
           limit: searchParams.limit,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to search food logs');
     }
   };
@@ -456,7 +456,7 @@ export class FoodLogController {
         success: true,
         data: summary,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch daily nutrition summary');
     }
   };
@@ -507,7 +507,7 @@ export class FoodLogController {
         success: true,
         data: summaries,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch nutrition summary range');
     }
   };
@@ -549,7 +549,7 @@ export class FoodLogController {
           limit,
         },
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch food logs by meal type');
     }
   };
@@ -572,7 +572,7 @@ export class FoodLogController {
         success: true,
         data: foodLogs,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch recent food logs');
     }
   };
@@ -590,7 +590,7 @@ export class FoodLogController {
         success: true,
         data: stats,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch food log statistics');
     }
   };
@@ -613,7 +613,7 @@ export class FoodLogController {
         success: true,
         data: trend,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch weekly nutrition trend');
     }
   };
@@ -636,7 +636,7 @@ export class FoodLogController {
         success: true,
         data: trend,
       });
-    } catch (error) {
+    } catch (_) {
       throw new AppError('Failed to fetch monthly nutrition trend');
     }
   };
