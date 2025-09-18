@@ -124,7 +124,7 @@ export class QuantityUnitService {
         page,
         pages: Math.ceil(total / limit),
       };
-    } catch (error) {
+    } catch (_error) {
       throw new Error('Failed to fetch quantity units');
     }
   }
@@ -172,7 +172,7 @@ export class QuantityUnitService {
     try {
       const unit = await QuantityUnit.findOne({ name }).lean();
       return unit;
-    } catch (error) {
+    } catch (_error) {
       throw new Error('Failed to fetch quantity unit by name');
     }
   }
@@ -183,7 +183,7 @@ export class QuantityUnitService {
     try {
       const unit = await QuantityUnit.findOne({ shortName }).lean();
       return unit;
-    } catch (error) {
+    } catch (_error) {
       throw new Error('Failed to fetch quantity unit by short name');
     }
   }
@@ -227,7 +227,7 @@ export class QuantityUnitService {
             ? Math.round(stats[0].averageDefaultValue * 10) / 10
             : 0,
       };
-    } catch (error) {
+    } catch (_error) {
       throw new Error('Failed to get quantity unit statistics');
     }
   }
