@@ -129,9 +129,7 @@ export class QuantityUnitService {
     }
   }
 
-  public async searchQuantityUnits(
-    params: QuantityUnitSearchParams
-  ): Promise<{
+  public async searchQuantityUnits(params: QuantityUnitSearchParams): Promise<{
     data: IQuantityUnit[];
     total: number;
     page: number;
