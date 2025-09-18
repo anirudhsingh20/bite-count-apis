@@ -1,13 +1,13 @@
-import FoodLog, { IFoodLog } from '../models/FoodLogSchema';
-import {
-  CreateFoodLogRequest,
-  UpdateFoodLogRequest,
-  FoodLogSearchParams,
-  DailyNutritionSummary,
-  CreateBulkFoodLogRequest,
-  BulkFoodLogResponse,
-} from '../models/FoodLog';
 import { startOfDay } from 'date-fns';
+import {
+  BulkFoodLogResponse,
+  CreateBulkFoodLogRequest,
+  CreateFoodLogRequest,
+  DailyNutritionSummary,
+  FoodLogSearchParams,
+  UpdateFoodLogRequest,
+} from '../models/FoodLog';
+import FoodLog, { IFoodLog } from '../models/FoodLogSchema';
 
 export class FoodLogService {
   // Helper method to find existing food log for same meal and log date
@@ -37,14 +37,14 @@ export class FoodLogService {
     }
   }
 
-  // Helper method to update existing food log quantity
-  private async updateFoodLogQuantity(
+  // Helper method to update existing food log servings
+  private async updateFoodLogServings(
     logId: string,
-    newQuantity: number,
+    newServings: number,
     notes?: string
   ): Promise<IFoodLog | null> {
     try {
-      const updateData: any = { quantity: newQuantity };
+      const updateData: any = { servings: newServings };
       if (notes !== undefined) {
         updateData.notes = notes.trim();
       }
@@ -53,14 +53,21 @@ export class FoodLogService {
         new: true,
         runValidators: true,
       })
-        .populate('meal', 'name calories protein fat carbs servingSize emoji')
+        .populate({
+          path: 'meal',
+          select: 'name calories protein fat carbs quantity quantityUnit emoji',
+          populate: {
+            path: 'quantityUnit',
+            select: 'name shortName defaultValue incrementValue'
+          }
+        })
         .populate('user', 'name email')
         .lean();
 
       return updatedLog;
     } catch (error) {
       throw new Error(
-        `Failed to update food log quantity: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to update food log servings: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
@@ -78,10 +85,10 @@ export class FoodLogService {
       );
 
       if (existingLog) {
-        // Update existing log with new quantity (replace, don't add)
-        const updatedLog = await this.updateFoodLogQuantity(
+        // Update existing log with new servings (replace, don't add)
+        const updatedLog = await this.updateFoodLogServings(
           (existingLog._id as any).toString(),
-          data.quantity,
+          data.servings,
           data.notes
         );
 
@@ -96,7 +103,7 @@ export class FoodLogService {
           user: data.user,
           meal: data.meal,
           mealType: data.mealType,
-          quantity: data.quantity,
+          servings: data.servings,
           logDate: logDate,
           loggedAt: data.loggedAt || Date.now(),
           notes: data.notes?.trim(),
@@ -108,7 +115,7 @@ export class FoodLogService {
         // Populate the meal data for response
         await savedFoodLog.populate(
           'meal',
-          'name calories protein fat carbs servingSize emoji'
+          'name calories protein fat carbs quantity quantityUnit emoji'
         );
 
         return savedFoodLog;
@@ -172,13 +179,13 @@ export class FoodLogService {
         const updatePromises = itemsToUpdate.map(
           async ({ item, existingLog }) => {
             try {
-              const updateData: any = { quantity: item.quantity };
+              const updateData: any = { servings: item.servings };
               if (item.notes?.trim() || data.notes?.trim()) {
                 updateData.notes = item.notes?.trim() || data.notes?.trim();
               }
 
               const updatedLog = await FoodLog.findByIdAndUpdate(
-                existingLog._id,
+                (existingLog._id as any).toString(),
                 updateData,
                 { new: true, runValidators: true }
               );
@@ -210,7 +217,7 @@ export class FoodLogService {
           })
             .populate(
               'meal',
-              'name calories protein fat carbs servingSize emoji'
+              'name calories protein fat carbs quantity quantityUnit emoji'
             )
             .populate('user', 'name email');
 
@@ -225,7 +232,7 @@ export class FoodLogService {
           user: data.user,
           meal: item.meal,
           mealType: data.mealType,
-          quantity: item.quantity,
+          servings: item.servings,
           logDate: logDate,
           loggedAt: loggedAt,
           notes: item.notes?.trim() || data.notes?.trim(),
@@ -237,7 +244,8 @@ export class FoodLogService {
         const populatedLogs = await FoodLog.find({
           _id: { $in: newLogs.map(log => log._id) },
         })
-          .populate('meal', 'name calories protein fat carbs servingSize emoji')
+          .populate('meal', 'name calories protein fat carbs quantity quantityUnit emoji')
+          .populate('meal.quantityUnit', 'name shortName defaultValue incrementValue')
           .populate('user', 'name email');
 
         createdLogs.push(...populatedLogs);
@@ -252,11 +260,13 @@ export class FoodLogService {
 
       allLogs.forEach(log => {
         const meal = log.meal as any;
-        const multiplier = log.quantity;
-        totalCalories += (meal.calories || 0) * multiplier;
-        totalProtein += (meal.protein || 0) * multiplier;
-        totalFat += (meal.fat || 0) * multiplier;
-        totalCarbs += (meal.carbs || 0) * multiplier;
+        if (meal && meal.calories !== undefined) {
+          const multiplier = log.servings;
+          totalCalories += (meal.calories || 0) * multiplier;
+          totalProtein += (meal.protein || 0) * multiplier;
+          totalFat += (meal.fat || 0) * multiplier;
+          totalCarbs += (meal.carbs || 0) * multiplier;
+        }
       });
 
       const totalProcessedItems = createdLogs.length + updatedLogs.length;
@@ -291,7 +301,14 @@ export class FoodLogService {
   public async getFoodLogById(id: string): Promise<IFoodLog | null> {
     try {
       const foodLog = await FoodLog.findById(id)
-        .populate('meal', 'name calories protein fat carbs servingSize emoji')
+        .populate({
+          path: 'meal',
+          select: 'name calories protein fat carbs quantity quantityUnit emoji',
+          populate: {
+            path: 'quantityUnit',
+            select: 'name shortName defaultValue incrementValue'
+          }
+        })
         .populate('user', 'name email')
         .lean();
       return foodLog;
@@ -314,7 +331,14 @@ export class FoodLogService {
         new: true,
         runValidators: true,
       })
-        .populate('meal', 'name calories protein fat carbs servingSize emoji')
+        .populate({
+          path: 'meal',
+          select: 'name calories protein fat carbs quantity quantityUnit emoji',
+          populate: {
+            path: 'quantityUnit',
+            select: 'name shortName defaultValue incrementValue'
+          }
+        })
         .populate('user', 'name email')
         .lean();
 
@@ -367,7 +391,15 @@ export class FoodLogService {
 
       const [data, total] = await Promise.all([
         FoodLog.find(query)
-          .populate('meal', 'name calories protein fat carbs servingSize emoji')
+          .populate({
+            path: 'meal',
+            select: 'name calories protein fat carbs quantity emoji',
+            populate: {
+              path: 'quantityUnit',
+              model: 'QuantityUnit',
+              select: 'name shortName defaultValue incrementValue'
+            }
+          })
           .sort({ logDate: -1 })
           .skip(skip)
           .limit(limit)
@@ -424,7 +456,14 @@ export class FoodLogService {
 
     const [data, total] = await Promise.all([
       FoodLog.find(searchQuery)
-        .populate('meal', 'name calories protein fat carbs servingSize emoji')
+        .populate({
+          path: 'meal',
+          select: 'name calories protein fat carbs quantity quantityUnit emoji',
+          populate: {
+            path: 'quantityUnit', // check and update we may not need to sent this data
+            select: 'name shortName defaultValue incrementValue'
+          }
+        })
         .populate('user', 'name email')
         .sort({ logDate: -1 })
         .skip(skip)
@@ -493,7 +532,14 @@ export class FoodLogService {
 
     const [data, total] = await Promise.all([
       FoodLog.find({ user: userId, mealType })
-        .populate('meal', 'name calories protein fat carbs servingSize emoji')
+        .populate({
+          path: 'meal',
+          select: 'name calories protein fat carbs quantity quantityUnit emoji',
+          populate: {
+            path: 'quantityUnit',
+            select: 'name shortName defaultValue incrementValue'
+          }
+        })
         .sort({ logDate: -1 })
         .skip(skip)
         .limit(limit)
@@ -523,7 +569,14 @@ export class FoodLogService {
         user: userId,
         logDate: { $gte: startDate, $lte: endDate },
       })
-        .populate('meal', 'name calories protein fat carbs servingSize emoji')
+        .populate({
+          path: 'meal',
+          select: 'name calories protein fat carbs quantity quantityUnit emoji',
+          populate: {
+            path: 'quantityUnit',
+            select: 'name shortName defaultValue incrementValue'
+          }
+        })
         .sort({ logDate: -1 })
         .skip(skip)
         .limit(limit)
@@ -548,7 +601,14 @@ export class FoodLogService {
   ): Promise<IFoodLog[]> {
     try {
       const foodLogs = await FoodLog.find({ user: userId })
-        .populate('meal', 'name calories protein fat carbs servingSize emoji')
+        .populate({
+          path: 'meal',
+          select: 'name calories protein fat carbs quantity quantityUnit emoji',
+          populate: {
+            path: 'quantityUnit',
+            select: 'name shortName defaultValue incrementValue'
+          }
+        })
         .sort({ logDate: -1 })
         .limit(limit)
         .lean();
@@ -568,18 +628,18 @@ export class FoodLogService {
             _id: null,
             totalLogs: { $sum: 1 },
             totalCalories: {
-              $sum: { $multiply: ['$quantity', '$meal.calories'] },
+              $sum: { $multiply: ['$servings', '$meal.calories'] },
             },
             totalProtein: {
-              $sum: { $multiply: ['$quantity', '$meal.protein'] },
+              $sum: { $multiply: ['$servings', '$meal.protein'] },
             },
-            totalFat: { $sum: { $multiply: ['$quantity', '$meal.fat'] } },
-            totalCarbs: { $sum: { $multiply: ['$quantity', '$meal.carbs'] } },
-            averageQuantity: { $avg: '$quantity' },
+            totalFat: { $sum: { $multiply: ['$servings', '$meal.fat'] } },
+            totalCarbs: { $sum: { $multiply: ['$servings', '$meal.carbs'] } },
+            averageServings: { $avg: '$servings' },
             mealTypeBreakdown: {
               $push: {
                 mealType: '$mealType',
-                quantity: '$quantity',
+                servings: '$servings',
               },
             },
           },
@@ -593,7 +653,7 @@ export class FoodLogService {
           totalProtein: 0,
           totalFat: 0,
           totalCarbs: 0,
-          averageQuantity: 0,
+          averageServings: 0,
           mealTypeBreakdown: {
             breakfast: 0,
             lunch: 0,
@@ -616,7 +676,7 @@ export class FoodLogService {
           Object.prototype.hasOwnProperty.call(mealTypeBreakdown, item.mealType)
         ) {
           mealTypeBreakdown[item.mealType as keyof typeof mealTypeBreakdown] +=
-            item.quantity;
+            item.servings;
         }
       });
 
@@ -626,7 +686,7 @@ export class FoodLogService {
         totalProtein: result.totalProtein || 0,
         totalFat: result.totalFat || 0,
         totalCarbs: result.totalCarbs || 0,
-        averageQuantity: result.averageQuantity || 0,
+        averageServings: result.averageServings || 0,
         mealTypeBreakdown,
       };
     } catch (_) {

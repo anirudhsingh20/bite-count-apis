@@ -78,20 +78,21 @@ export class MealController {
         !mealData.name ||
         mealData.protein === undefined ||
         mealData.calories === undefined ||
-        !mealData.servingSize
+        mealData.quantity === undefined ||
+        !mealData.quantityUnit
       ) {
         res.status(400).json({
           success: false,
-          message: 'Name, protein, calories, and serving size are required',
+          message: 'Name, protein, calories, quantity, and quantity unit are required',
         });
         return;
       }
 
       // Validate numeric values
-      if (mealData.protein < 0 || mealData.calories < 0) {
+      if (mealData.protein < 0 || mealData.calories < 0 || mealData.quantity <= 0) {
         res.status(400).json({
           success: false,
-          message: 'Protein and calories cannot be negative',
+          message: 'Protein and calories cannot be negative, and quantity must be greater than 0',
         });
         return;
       }

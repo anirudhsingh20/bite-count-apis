@@ -3,7 +3,7 @@ export interface FoodLog {
   user: string;
   meal: string; // Reference to Meal ID
   mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack'; // check and update ... make sure to use this in all the places where meal type is used
-  quantity: number; // How many servings
+  servings: number; // How many servings
   logDate: number; // Date for which the food is being logged (epoch timestamp)
   loggedAt: number; // When the log entry was created (epoch timestamp)
   notes?: string;
@@ -15,7 +15,7 @@ export interface CreateFoodLogRequest {
   user: string;
   meal: string;
   mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
-  quantity: number;
+  servings: number;
   logDate?: number; // Date for which the food is being logged (epoch timestamp)
   loggedAt?: number; // When the log entry was created (epoch timestamp)
   notes?: string;
@@ -24,7 +24,7 @@ export interface CreateFoodLogRequest {
 export interface UpdateFoodLogRequest {
   meal?: string;
   mealType?: 'breakfast' | 'lunch' | 'dinner' | 'snack';
-  quantity?: number;
+  servings?: number;
   logDate?: number; // Date for which the food is being logged (epoch timestamp)
   loggedAt?: number; // When the log entry was created (epoch timestamp)
   notes?: string;
@@ -80,7 +80,7 @@ export interface FoodLogSearchParams {
 
 export interface BulkFoodLogItem {
   meal: string; // Reference to Meal ID
-  quantity: number; // How many servings
+  servings: number; // How many servings
   notes?: string;
 }
 

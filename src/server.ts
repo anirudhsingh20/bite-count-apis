@@ -10,6 +10,7 @@ import authRoutes from './routes/auth';
 import mealRoutes from './routes/meal';
 import tagRoutes from './routes/tag';
 import foodLogRoutes from './routes/foodLog';
+import quantityUnitRoutes from './routes/quantityUnit';
 import healthRoutes from './routes/health';
 import Database from './config/database';
 
@@ -32,6 +33,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/meals', mealRoutes);
 app.use('/api/v1/tags', tagRoutes);
 app.use('/api/v1/food-logs', foodLogRoutes);
+app.use('/api/v1/quantity-units', quantityUnitRoutes);
 app.use('/api/v1/users', userRoutes);
 
 // Error handling middleware

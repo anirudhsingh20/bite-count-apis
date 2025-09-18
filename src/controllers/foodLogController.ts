@@ -36,11 +36,11 @@ export class FoodLogController {
         !foodLogData.user ||
         !foodLogData.meal ||
         !foodLogData.mealType ||
-        foodLogData.quantity === undefined
+        foodLogData.servings === undefined
       ) {
         res.status(400).json({
           success: false,
-          message: 'User, meal, meal type, and quantity are required',
+          message: 'User, meal, meal type, and servings are required',
         });
         return;
       }
@@ -55,11 +55,11 @@ export class FoodLogController {
         return;
       }
 
-      // Validate quantity
-      if (foodLogData.quantity <= 0 || foodLogData.quantity > 100) {
+      // Validate servings
+      if (foodLogData.servings <= 0 || foodLogData.servings > 100) {
         res.status(400).json({
           success: false,
-          message: 'Quantity must be between 0.1 and 100',
+          message: 'Servings must be between 0.1 and 100',
         });
         return;
       }
@@ -142,18 +142,18 @@ export class FoodLogController {
       for (let i = 0; i < bulkLogData.items.length; i++) {
         const item = bulkLogData.items[i];
 
-        if (!item.meal || item.quantity === undefined) {
+        if (!item.meal || item.servings === undefined) {
           res.status(400).json({
             success: false,
-            message: `Item ${i + 1}: meal and quantity are required`,
+            message: `Item ${i + 1}: meal and servings are required`,
           });
           return;
         }
 
-        if (item.quantity <= 0 || item.quantity > 100) {
+        if (item.servings <= 0 || item.servings > 100) {
           res.status(400).json({
             success: false,
-            message: `Item ${i + 1}: quantity must be between 0.1 and 100`,
+            message: `Item ${i + 1}: servings must be between 0.1 and 100`,
           });
           return;
         }
@@ -188,6 +188,11 @@ export class FoodLogController {
           });
           return;
         }
+        res.status(500).json({
+          success: false,
+          message: error.message,
+        });
+        return;
       }
       throw new AppError('Failed to create bulk food log');
     }
@@ -238,12 +243,12 @@ export class FoodLogController {
         }
       }
 
-      // Validate quantity if provided
-      if (updateData.quantity !== undefined) {
-        if (updateData.quantity <= 0 || updateData.quantity > 100) {
+      // Validate servings if provided
+      if (updateData.servings !== undefined) {
+        if (updateData.servings <= 0 || updateData.servings > 100) {
           res.status(400).json({
             success: false,
-            message: 'Quantity must be between 0.1 and 100',
+            message: 'Servings must be between 0.1 and 100',
           });
           return;
         }

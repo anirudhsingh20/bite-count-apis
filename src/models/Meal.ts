@@ -5,7 +5,8 @@ export interface Meal {
   calories: number;
   fat?: number;
   carbs?: number;
-  servingSize: string;
+  quantity: number;
+  quantityUnit: string; // QuantityUnit ID
   tags: string[]; // Array of Tag IDs
   emoji?: string;
   user?: string; // Optional User ID
@@ -19,7 +20,8 @@ export interface CreateMealRequest {
   calories: number;
   fat?: number;
   carbs?: number;
-  servingSize: string;
+  quantity: number;
+  quantityUnit: string;
   tags?: string[];
   emoji?: string;
   user?: string;
@@ -31,7 +33,8 @@ export interface UpdateMealRequest {
   calories?: number;
   fat?: number;
   carbs?: number;
-  servingSize?: string;
+  quantity?: number;
+  quantityUnit?: string;
   tags?: string[];
   emoji?: string;
 }
@@ -43,7 +46,8 @@ export interface MealResponse {
   calories: number;
   fat?: number;
   carbs?: number;
-  servingSize: string;
+  quantity: number;
+  quantityUnit: string;
   tags: string[];
   emoji?: string;
   createdAt: Date;

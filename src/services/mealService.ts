@@ -15,6 +15,7 @@ export class MealService {
     const [data, total] = await Promise.all([
       Meal.find()
         .populate('tags', 'name category color')
+        .populate('quantityUnit', 'name shortName defaultValue incrementValue')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -34,6 +35,7 @@ export class MealService {
     try {
       const meal = await Meal.findById(id)
         .populate('tags', 'name category color')
+        .populate('quantityUnit', 'name shortName defaultValue incrementValue')
         .lean();
       return meal;
     } catch (_) {
@@ -47,7 +49,8 @@ export class MealService {
         name: data.name.trim(),
         protein: data.protein,
         calories: data.calories,
-        servingSize: data.servingSize.trim(),
+        quantity: data.quantity,
+        quantityUnit: data.quantityUnit,
         tags: data.tags || [],
         emoji: data.emoji?.trim(),
       };
@@ -85,9 +88,7 @@ export class MealService {
       if (updateData.name) {
         updateData.name = updateData.name.trim();
       }
-      if (updateData.servingSize) {
-        updateData.servingSize = updateData.servingSize.trim();
-      }
+      // Quantity and quantityUnit are handled by the schema validation
       if (updateData.emoji) {
         updateData.emoji = updateData.emoji.trim();
       }
@@ -99,6 +100,7 @@ export class MealService {
         runValidators: true,
       })
         .populate('tags', 'name category color')
+        .populate('quantityUnit', 'name shortName defaultValue incrementValue')
         .lean();
 
       return updatedMeal;
@@ -181,6 +183,7 @@ export class MealService {
     const [data, total] = await Promise.all([
       Meal.find(searchQuery)
         .populate('tags', 'name category color')
+        .populate('quantityUnit', 'name shortName defaultValue incrementValue')
         .sort({ name: 1 })
         .skip(skip)
         .limit(limit)
@@ -400,6 +403,7 @@ export class MealService {
       const [data, total] = await Promise.all([
         Meal.find({ user: userId })
           .populate('tags', 'name category color')
+          .populate('quantityUnit', 'name shortName defaultValue incrementValue')
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(limit)

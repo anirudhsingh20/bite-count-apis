@@ -7,7 +7,8 @@ export interface IMeal extends Document {
   calories: number;
   fat?: number;
   carbs?: number;
-  servingSize: string;
+  quantity: number;
+  quantityUnit: mongoose.Types.ObjectId;
   tags: mongoose.Types.ObjectId[];
   emoji?: string;
   user?: mongoose.Types.ObjectId;
@@ -52,12 +53,22 @@ const mealSchema = new Schema<IMeal>(
       max: [1000, 'Carbohydrate content cannot exceed 1000g'],
       default: undefined,
     },
-    servingSize: {
-      type: String,
-      required: [true, 'Serving size is required'],
-      trim: true,
-      minlength: [1, 'Serving size must be at least 1 character long'],
-      maxlength: [50, 'Serving size cannot exceed 50 characters'],
+    quantity: {
+      type: Number,
+      required: [true, 'Quantity is required'],
+      min: [0.01, 'Quantity must be greater than 0'],
+      max: [10000, 'Quantity cannot exceed 10000'],
+    },
+    quantityUnit: {
+      type: Schema.Types.ObjectId,
+      ref: 'QuantityUnit',
+      required: [true, 'Quantity unit is required'],
+      validate: {
+        validator: function (unitId: any) {
+          return mongoose.Types.ObjectId.isValid(unitId);
+        },
+        message: 'Quantity unit must be a valid QuantityUnit ID',
+      },
       index: true,
     },
     tags: {
@@ -114,7 +125,8 @@ mealSchema.index({ calories: 1 }); // Index for calorie range queries
 mealSchema.index({ protein: 1 }); // Index for protein range queries
 mealSchema.index({ fat: 1 }); // Index for fat range queries
 mealSchema.index({ carbs: 1 }); // Index for carbs range queries
-mealSchema.index({ servingSize: 1 }); // Index for serving size searches
+mealSchema.index({ quantity: 1 }); // Index for quantity searches
+mealSchema.index({ quantityUnit: 1 }); // Index for quantity unit searches
 mealSchema.index({ tags: 1 }); // Index for tag searches
 mealSchema.index({ user: 1 }); // Index for user searches
 mealSchema.index({ name: 'text' }); // Text index for full-text search
@@ -137,6 +149,7 @@ mealSchema.pre('save', async function (next) {
     // Round numeric values to 2 decimal places
     (this as any).protein = Math.round((this as any).protein * 100) / 100;
     (this as any).calories = Math.round((this as any).calories * 100) / 100;
+    (this as any).quantity = Math.round((this as any).quantity * 100) / 100;
     if ((this as any).fat !== undefined) {
       (this as any).fat = Math.round((this as any).fat * 100) / 100;
     }
@@ -322,7 +335,8 @@ mealSchema.methods.getMealInfo = function () {
     name: this.name,
     protein: this.protein,
     calories: this.calories,
-    servingSize: this.servingSize,
+    quantity: this.quantity,
+    quantityUnit: this.quantityUnit,
     tags: this.tags || [],
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,

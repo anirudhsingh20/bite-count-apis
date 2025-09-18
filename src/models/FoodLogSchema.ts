@@ -5,7 +5,7 @@ export interface IFoodLog extends Document {
   user: mongoose.Types.ObjectId;
   meal: mongoose.Types.ObjectId;
   mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
-  quantity: number;
+  servings: number;
   logDate: number; // Date for which the food is being logged (epoch timestamp)
   loggedAt: number; // When the log entry was created (epoch timestamp)
   notes?: string;
@@ -37,11 +37,11 @@ const foodLogSchema = new Schema<IFoodLog>(
       },
       index: true,
     },
-    quantity: {
+    servings: {
       type: Number,
-      required: [true, 'Quantity is required'],
-      min: [0.1, 'Quantity must be at least 0.1'],
-      max: [100, 'Quantity cannot exceed 100 servings'],
+      required: [true, 'Servings is required'],
+      min: [0.1, 'Servings must be at least 0.1'],
+      max: [100, 'Servings cannot exceed 100'],
     },
     logDate: {
       type: Number,
@@ -89,7 +89,7 @@ foodLogSchema.statics.getDailyNutritionSummary = async function (
   const logs = await this.find({
     user: userId,
     logDate: { $gte: startOfDayEpoch, $lte: endOfDayEpoch },
-  }).populate('meal', 'name calories protein fat carbs servingSize');
+  }).populate('meal', 'name calories protein fat carbs quantity quantityUnit');
 
   const summary = {
     date: startOfDay.toISOString().split('T')[0],
@@ -108,7 +108,7 @@ foodLogSchema.statics.getDailyNutritionSummary = async function (
 
   logs.forEach((log: any) => {
     const meal = log.meal as any;
-    const multiplier = log.quantity;
+    const multiplier = log.servings;
 
     const calories = (meal.calories || 0) * multiplier;
     const protein = (meal.protein || 0) * multiplier;
@@ -151,7 +151,7 @@ foodLogSchema.statics.getNutritionSummaryRange = async function (
   const logs = await this.find({
     user: userId,
     logDate: { $gte: startOfDayEpoch, $lte: endOfDayEpoch },
-  }).populate('meal', 'name calories protein fat carbs servingSize');
+  }).populate('meal', 'name calories protein fat carbs quantity quantityUnit');
 
   // Group by date
   const dailySummaries: { [key: string]: any } = {};
@@ -177,7 +177,7 @@ foodLogSchema.statics.getNutritionSummaryRange = async function (
     }
 
     const meal = log.meal as any;
-    const multiplier = log.quantity;
+    const multiplier = log.servings;
 
     const calories = (meal.calories || 0) * multiplier;
     const protein = (meal.protein || 0) * multiplier;
@@ -207,14 +207,15 @@ foodLogSchema.statics.getNutritionSummaryRange = async function (
 
 // Instance method to get nutrition info for this log entry
 foodLogSchema.methods.getNutritionInfo = async function () {
-  await this.populate('meal', 'name calories protein fat carbs servingSize');
+  await this.populate('meal', 'name calories protein fat carbs quantity quantityUnit');
   const meal = this.meal as any;
-  const multiplier = this.quantity;
+  const multiplier = this.servings;
 
   return {
     name: meal.name,
-    servingSize: meal.servingSize,
-    quantity: this.quantity,
+    quantity: meal.quantity,
+    quantityUnit: meal.quantityUnit,
+    servings: this.servings,
     totalCalories: (meal.calories || 0) * multiplier,
     totalProtein: (meal.protein || 0) * multiplier,
     totalFat: (meal.fat || 0) * multiplier,
