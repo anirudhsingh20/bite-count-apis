@@ -403,7 +403,10 @@ export class MealService {
       const [data, total] = await Promise.all([
         Meal.find({ user: userId })
           .populate('tags', 'name category color')
-          .populate('quantityUnit', 'name shortName defaultValue incrementValue')
+          .populate(
+            'quantityUnit',
+            'name shortName defaultValue incrementValue'
+          )
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(limit)

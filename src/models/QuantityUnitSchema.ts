@@ -47,13 +47,14 @@ const quantityUnitSchema = new Schema<IQuantityUnit>(
 quantityUnitSchema.index({ name: 1 });
 quantityUnitSchema.index({ shortName: 1 });
 
-
-
 // Static method to search units
-quantityUnitSchema.statics.searchUnits = function(query: any) {
+quantityUnitSchema.statics.searchUnits = function (query: any) {
   return this.find(query).sort({ name: 1 });
 };
 
-const QuantityUnit = mongoose.model<IQuantityUnit>('QuantityUnit', quantityUnitSchema);
+const QuantityUnit = mongoose.model<IQuantityUnit>(
+  'QuantityUnit',
+  quantityUnitSchema
+);
 
 export default QuantityUnit;

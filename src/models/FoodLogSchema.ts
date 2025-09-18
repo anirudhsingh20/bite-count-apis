@@ -207,7 +207,10 @@ foodLogSchema.statics.getNutritionSummaryRange = async function (
 
 // Instance method to get nutrition info for this log entry
 foodLogSchema.methods.getNutritionInfo = async function () {
-  await this.populate('meal', 'name calories protein fat carbs quantity quantityUnit');
+  await this.populate(
+    'meal',
+    'name calories protein fat carbs quantity quantityUnit'
+  );
   const meal = this.meal as any;
   const multiplier = this.servings;
 

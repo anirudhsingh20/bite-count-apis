@@ -58,8 +58,8 @@ export class FoodLogService {
           select: 'name calories protein fat carbs quantity quantityUnit emoji',
           populate: {
             path: 'quantityUnit',
-            select: 'name shortName defaultValue incrementValue'
-          }
+            select: 'name shortName defaultValue incrementValue',
+          },
         })
         .populate('user', 'name email')
         .lean();
@@ -244,8 +244,14 @@ export class FoodLogService {
         const populatedLogs = await FoodLog.find({
           _id: { $in: newLogs.map(log => log._id) },
         })
-          .populate('meal', 'name calories protein fat carbs quantity quantityUnit emoji')
-          .populate('meal.quantityUnit', 'name shortName defaultValue incrementValue')
+          .populate(
+            'meal',
+            'name calories protein fat carbs quantity quantityUnit emoji'
+          )
+          .populate(
+            'meal.quantityUnit',
+            'name shortName defaultValue incrementValue'
+          )
           .populate('user', 'name email');
 
         createdLogs.push(...populatedLogs);
@@ -306,8 +312,8 @@ export class FoodLogService {
           select: 'name calories protein fat carbs quantity quantityUnit emoji',
           populate: {
             path: 'quantityUnit',
-            select: 'name shortName defaultValue incrementValue'
-          }
+            select: 'name shortName defaultValue incrementValue',
+          },
         })
         .populate('user', 'name email')
         .lean();
@@ -336,8 +342,8 @@ export class FoodLogService {
           select: 'name calories protein fat carbs quantity quantityUnit emoji',
           populate: {
             path: 'quantityUnit',
-            select: 'name shortName defaultValue incrementValue'
-          }
+            select: 'name shortName defaultValue incrementValue',
+          },
         })
         .populate('user', 'name email')
         .lean();
@@ -397,8 +403,8 @@ export class FoodLogService {
             populate: {
               path: 'quantityUnit',
               model: 'QuantityUnit',
-              select: 'name shortName defaultValue incrementValue'
-            }
+              select: 'name shortName defaultValue incrementValue',
+            },
           })
           .sort({ logDate: -1 })
           .skip(skip)
@@ -461,8 +467,8 @@ export class FoodLogService {
           select: 'name calories protein fat carbs quantity quantityUnit emoji',
           populate: {
             path: 'quantityUnit', // check and update we may not need to sent this data
-            select: 'name shortName defaultValue incrementValue'
-          }
+            select: 'name shortName defaultValue incrementValue',
+          },
         })
         .populate('user', 'name email')
         .sort({ logDate: -1 })
@@ -537,8 +543,8 @@ export class FoodLogService {
           select: 'name calories protein fat carbs quantity quantityUnit emoji',
           populate: {
             path: 'quantityUnit',
-            select: 'name shortName defaultValue incrementValue'
-          }
+            select: 'name shortName defaultValue incrementValue',
+          },
         })
         .sort({ logDate: -1 })
         .skip(skip)
@@ -574,8 +580,8 @@ export class FoodLogService {
           select: 'name calories protein fat carbs quantity quantityUnit emoji',
           populate: {
             path: 'quantityUnit',
-            select: 'name shortName defaultValue incrementValue'
-          }
+            select: 'name shortName defaultValue incrementValue',
+          },
         })
         .sort({ logDate: -1 })
         .skip(skip)
@@ -606,8 +612,8 @@ export class FoodLogService {
           select: 'name calories protein fat carbs quantity quantityUnit emoji',
           populate: {
             path: 'quantityUnit',
-            select: 'name shortName defaultValue incrementValue'
-          }
+            select: 'name shortName defaultValue incrementValue',
+          },
         })
         .sort({ logDate: -1 })
         .limit(limit)

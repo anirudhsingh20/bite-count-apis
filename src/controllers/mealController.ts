@@ -83,16 +83,22 @@ export class MealController {
       ) {
         res.status(400).json({
           success: false,
-          message: 'Name, protein, calories, quantity, and quantity unit are required',
+          message:
+            'Name, protein, calories, quantity, and quantity unit are required',
         });
         return;
       }
 
       // Validate numeric values
-      if (mealData.protein < 0 || mealData.calories < 0 || mealData.quantity <= 0) {
+      if (
+        mealData.protein < 0 ||
+        mealData.calories < 0 ||
+        mealData.quantity <= 0
+      ) {
         res.status(400).json({
           success: false,
-          message: 'Protein and calories cannot be negative, and quantity must be greater than 0',
+          message:
+            'Protein and calories cannot be negative, and quantity must be greater than 0',
         });
         return;
       }

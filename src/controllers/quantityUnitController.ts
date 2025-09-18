@@ -14,18 +14,27 @@ export class QuantityUnitController {
       const data: CreateQuantityUnitRequest = req.body;
 
       // Validate required fields
-      if (!data.name || !data.shortName || data.defaultValue === undefined || 
-          data.incrementValue === undefined) {
+      if (
+        !data.name ||
+        !data.shortName ||
+        data.defaultValue === undefined ||
+        data.incrementValue === undefined
+      ) {
         res.status(400).json({
           success: false,
-          message: 'Missing required fields: name, shortName, defaultValue, incrementValue',
+          message:
+            'Missing required fields: name, shortName, defaultValue, incrementValue',
         });
         return;
       }
 
       // Validate data types
-      if (typeof data.name !== 'string' || typeof data.shortName !== 'string' ||
-          typeof data.defaultValue !== 'number' || typeof data.incrementValue !== 'number') {
+      if (
+        typeof data.name !== 'string' ||
+        typeof data.shortName !== 'string' ||
+        typeof data.defaultValue !== 'number' ||
+        typeof data.incrementValue !== 'number'
+      ) {
         res.status(400).json({
           success: false,
           message: 'Invalid data types for required fields',
@@ -37,11 +46,11 @@ export class QuantityUnitController {
       if (data.defaultValue < 0 || data.incrementValue < 0.1) {
         res.status(400).json({
           success: false,
-          message: 'defaultValue must be >= 0 and incrementValue must be >= 0.1',
+          message:
+            'defaultValue must be >= 0 and incrementValue must be >= 0.1',
         });
         return;
       }
-
 
       const quantityUnit = await quantityUnitService.createQuantityUnit(data);
 
@@ -54,7 +63,10 @@ export class QuantityUnitController {
       console.error('Error creating quantity unit:', error);
       res.status(500).json({
         success: false,
-        message: error instanceof Error ? error.message : 'Failed to create quantity unit',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to create quantity unit',
       });
     }
   }
@@ -89,7 +101,10 @@ export class QuantityUnitController {
       console.error('Error fetching quantity unit:', error);
       res.status(500).json({
         success: false,
-        message: error instanceof Error ? error.message : 'Failed to fetch quantity unit',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch quantity unit',
       });
     }
   }
@@ -124,7 +139,10 @@ export class QuantityUnitController {
         return;
       }
 
-      if (data.defaultValue !== undefined && (typeof data.defaultValue !== 'number' || data.defaultValue < 0)) {
+      if (
+        data.defaultValue !== undefined &&
+        (typeof data.defaultValue !== 'number' || data.defaultValue < 0)
+      ) {
         res.status(400).json({
           success: false,
           message: 'Default value must be a number >= 0',
@@ -132,7 +150,10 @@ export class QuantityUnitController {
         return;
       }
 
-      if (data.incrementValue !== undefined && (typeof data.incrementValue !== 'number' || data.incrementValue < 0.1)) {
+      if (
+        data.incrementValue !== undefined &&
+        (typeof data.incrementValue !== 'number' || data.incrementValue < 0.1)
+      ) {
         res.status(400).json({
           success: false,
           message: 'Increment value must be a number >= 0.1',
@@ -140,8 +161,10 @@ export class QuantityUnitController {
         return;
       }
 
-
-      const updatedUnit = await quantityUnitService.updateQuantityUnit(id, data);
+      const updatedUnit = await quantityUnitService.updateQuantityUnit(
+        id,
+        data
+      );
 
       if (!updatedUnit) {
         res.status(404).json({
@@ -160,7 +183,10 @@ export class QuantityUnitController {
       console.error('Error updating quantity unit:', error);
       res.status(500).json({
         success: false,
-        message: error instanceof Error ? error.message : 'Failed to update quantity unit',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to update quantity unit',
       });
     }
   }
@@ -195,7 +221,10 @@ export class QuantityUnitController {
       console.error('Error deleting quantity unit:', error);
       res.status(500).json({
         success: false,
-        message: error instanceof Error ? error.message : 'Failed to delete quantity unit',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to delete quantity unit',
       });
     }
   }
@@ -229,19 +258,17 @@ export class QuantityUnitController {
       console.error('Error fetching quantity units:', error);
       res.status(500).json({
         success: false,
-        message: error instanceof Error ? error.message : 'Failed to fetch quantity units',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch quantity units',
       });
     }
   }
 
   public async searchQuantityUnits(req: Request, res: Response): Promise<void> {
     try {
-      const {
-        name,
-        shortName,
-        page = 1,
-        limit = 10,
-      } = req.query;
+      const { name, shortName, page = 1, limit = 10 } = req.query;
 
       const searchParams: QuantityUnitSearchParams = {
         name: name as string,
@@ -250,7 +277,11 @@ export class QuantityUnitController {
         limit: parseInt(limit as string) || 10,
       };
 
-      if ((searchParams.page || 1) < 1 || (searchParams.limit || 10) < 1 || (searchParams.limit || 10) > 100) {
+      if (
+        (searchParams.page || 1) < 1 ||
+        (searchParams.limit || 10) < 1 ||
+        (searchParams.limit || 10) > 100
+      ) {
         res.status(400).json({
           success: false,
           message: 'Invalid page or limit parameters',
@@ -258,7 +289,8 @@ export class QuantityUnitController {
         return;
       }
 
-      const result = await quantityUnitService.searchQuantityUnits(searchParams);
+      const result =
+        await quantityUnitService.searchQuantityUnits(searchParams);
 
       res.status(200).json({
         success: true,
@@ -274,13 +306,18 @@ export class QuantityUnitController {
       console.error('Error searching quantity units:', error);
       res.status(500).json({
         success: false,
-        message: error instanceof Error ? error.message : 'Failed to search quantity units',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to search quantity units',
       });
     }
   }
 
-
-  public async getQuantityUnitByName(req: Request, res: Response): Promise<void> {
+  public async getQuantityUnitByName(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
       const { name } = req.params;
 
@@ -292,7 +329,8 @@ export class QuantityUnitController {
         return;
       }
 
-      const quantityUnit = await quantityUnitService.getQuantityUnitByName(name);
+      const quantityUnit =
+        await quantityUnitService.getQuantityUnitByName(name);
 
       if (!quantityUnit) {
         res.status(404).json({
@@ -310,12 +348,18 @@ export class QuantityUnitController {
       console.error('Error fetching quantity unit by name:', error);
       res.status(500).json({
         success: false,
-        message: error instanceof Error ? error.message : 'Failed to fetch quantity unit by name',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch quantity unit by name',
       });
     }
   }
 
-  public async getQuantityUnitByShortName(req: Request, res: Response): Promise<void> {
+  public async getQuantityUnitByShortName(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
       const { shortName } = req.params;
 
@@ -327,7 +371,8 @@ export class QuantityUnitController {
         return;
       }
 
-      const quantityUnit = await quantityUnitService.getQuantityUnitByShortName(shortName);
+      const quantityUnit =
+        await quantityUnitService.getQuantityUnitByShortName(shortName);
 
       if (!quantityUnit) {
         res.status(404).json({
@@ -345,12 +390,18 @@ export class QuantityUnitController {
       console.error('Error fetching quantity unit by short name:', error);
       res.status(500).json({
         success: false,
-        message: error instanceof Error ? error.message : 'Failed to fetch quantity unit by short name',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch quantity unit by short name',
       });
     }
   }
 
-  public async getQuantityUnitStats(req: Request, res: Response): Promise<void> {
+  public async getQuantityUnitStats(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
       const stats = await quantityUnitService.getQuantityUnitStats();
 
@@ -362,7 +413,10 @@ export class QuantityUnitController {
       console.error('Error fetching quantity unit stats:', error);
       res.status(500).json({
         success: false,
-        message: error instanceof Error ? error.message : 'Failed to fetch quantity unit statistics',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch quantity unit statistics',
       });
     }
   }

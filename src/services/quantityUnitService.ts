@@ -78,11 +78,10 @@ export class QuantityUnitService {
         key => updateData[key] === undefined && delete updateData[key]
       );
 
-      const updatedUnit = await QuantityUnit.findByIdAndUpdate(
-        id,
-        updateData,
-        { new: true, runValidators: true }
-      ).lean();
+      const updatedUnit = await QuantityUnit.findByIdAndUpdate(id, updateData, {
+        new: true,
+        runValidators: true,
+      }).lean();
 
       return updatedUnit;
     } catch (error) {
@@ -105,16 +104,17 @@ export class QuantityUnitService {
   public async getAllQuantityUnits(
     page: number = 1,
     limit: number = 10
-  ): Promise<{ data: IQuantityUnit[]; total: number; page: number; pages: number }> {
+  ): Promise<{
+    data: IQuantityUnit[];
+    total: number;
+    page: number;
+    pages: number;
+  }> {
     try {
       const skip = (page - 1) * limit;
 
       const [data, total] = await Promise.all([
-        QuantityUnit.find({})
-          .sort({ name: 1 })
-          .skip(skip)
-          .limit(limit)
-          .lean(),
+        QuantityUnit.find({}).sort({ name: 1 }).skip(skip).limit(limit).lean(),
         QuantityUnit.countDocuments({}),
       ]);
 
@@ -131,13 +131,13 @@ export class QuantityUnitService {
 
   public async searchQuantityUnits(
     params: QuantityUnitSearchParams
-  ): Promise<{ data: IQuantityUnit[]; total: number; page: number; pages: number }> {
-    const {
-      name,
-      shortName,
-      page = 1,
-      limit = 10,
-    } = params;
+  ): Promise<{
+    data: IQuantityUnit[];
+    total: number;
+    page: number;
+    pages: number;
+  }> {
+    const { name, shortName, page = 1, limit = 10 } = params;
     const skip = (page - 1) * limit;
 
     let searchQuery: any = {};
@@ -166,8 +166,9 @@ export class QuantityUnitService {
     };
   }
 
-
-  public async getQuantityUnitByName(name: string): Promise<IQuantityUnit | null> {
+  public async getQuantityUnitByName(
+    name: string
+  ): Promise<IQuantityUnit | null> {
     try {
       const unit = await QuantityUnit.findOne({ name }).lean();
       return unit;
@@ -206,14 +207,25 @@ export class QuantityUnitService {
         ]),
       ]);
 
-      const mostUsedIncrement = stats.length > 0 
-        ? Math.round(stats[0].incrementValues.reduce((a: number, b: number) => a + b, 0) / stats[0].incrementValues.length * 10) / 10
-        : 0;
+      const mostUsedIncrement =
+        stats.length > 0
+          ? Math.round(
+              (stats[0].incrementValues.reduce(
+                (a: number, b: number) => a + b,
+                0
+              ) /
+                stats[0].incrementValues.length) *
+                10
+            ) / 10
+          : 0;
 
       return {
         totalUnits,
         mostUsedIncrement,
-        averageDefaultValue: stats.length > 0 ? Math.round(stats[0].averageDefaultValue * 10) / 10 : 0,
+        averageDefaultValue:
+          stats.length > 0
+            ? Math.round(stats[0].averageDefaultValue * 10) / 10
+            : 0,
       };
     } catch (error) {
       throw new Error('Failed to get quantity unit statistics');
